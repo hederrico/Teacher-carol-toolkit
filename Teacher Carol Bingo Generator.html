@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Carol's Bingo Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .config-panel {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: #1e40af;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 2px solid #bfdbfe;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            font-family: monospace;
+            min-height: 150px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-generate {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-generate:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-print {
+            background: #10b981;
+            color: white;
+            display: none;
+        }
+
+        .btn-print:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .alert {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .alert-text {
+            color: #92400e;
+            font-size: 0.9rem;
+        }
+
+        .cards-container {
+            display: none;
+        }
+
+        .page-break {
+            background: white;
+            padding: 20mm;
+            margin-bottom: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10mm;
+        }
+
+        .bingo-card {
+            background: white;
+            border: 3px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .card-header h2 {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e40af;
+            margin: 0;
+            letter-spacing: 4px;
+        }
+
+        .bingo-grid {
+            display: grid;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .bingo-cell {
+            border: 2px solid #93c5fd;
+            border-radius: 8px;
+            padding: 8px;
+            background: #eff6ff;
+            display: flex;
+            flex-direction: column;
+            min-height: 80px;
+        }
+
+        .cell-word {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e40af;
+            text-align: center;
+            margin-bottom: 6px;
+            line-height: 1.2;
+            letter-spacing: 1px;
+        }
+
+        /* Forçar todas as letras das opções em maiúsculas */
+        .cell-word {
+            text-transform: uppercase;
+        }
+
+
+        .cell-drawing {
+            flex: 1;
+            border: 1px dashed #93c5fd;
+            border-radius: 4px;
+            background: white;
+            min-height: 50px;
+        }
+
+        .bingo-grid:not(.grid-4) .cell-drawing {
+            min-height: 70px;
+        }
+
+        .card-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #3b82f6;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .card-footer {
+            position: absolute;
+            bottom: 4px;
+            left: 10px;
+            color: #374151;
+            font-size: 11px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            .config-panel {
+                display: none !important;
+            }
+
+            .cards-container {
+                display: block !important;
+            }
+
+            .page-break {
+                page-break-after: always;
+                /* Full A4 page for print. We'll place 2 cards vertically inside. */
+                height: 297mm;
+                width: 210mm;
+                padding: 10mm;
+                box-sizing: border-box;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 10mm;
+            }
+
+            .page-break:last-child {
+                page-break-after: auto;
+            }
+
+            /* Precisely size each card to half an A4 (accounting for padding and gap) */
+            .bingo-card {
+                /* inner available width = 210mm - 2*10mm (page padding) = 190mm */
+                width: 190mm;
+                /* inner available height = 297mm - 2*10mm (page padding) = 277mm
+                   with gap 10mm between cards => each card height = (277mm - 10mm)/2 = 133.5mm */
+                height: 133.5mm;
+                padding: 8mm;
+                border-radius: 6px;
+                box-shadow: none;
+                box-sizing: border-box;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .grid-2 .bingo-cell {
+                min-height: 60px;
+            }
+
+            .grid-3 .bingo-cell {
+                min-height: 70px;
+            }
+
+            .grid-4 .bingo-cell {
+                min-height: 50px;
+            }
+
+            .grid-4 .cell-word {
+                font-size: 11px;
+            }
+        }
+
+        @media screen {
+            .page-break {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="config-panel">
+            <h1>Teacher Carol's Bingo Generator!</h1>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="gridSize">Tamanho da Grade</label>
+                    <select id="gridSize">
+                        <option value="2">2x2 (4 espaços)</option>
+                        <option value="3" selected>3x3 (9 espaços)</option>
+                        <option value="4">4x4 (16 espaços)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="numCards">Número de Cartelas</label>
+                    <input type="number" id="numCards" min="1" max="100" value="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="roomId">Identificação (até 4 letras)</label>
+                    <input type="text" id="roomId" maxlength="4" value="1A" style="text-transform: uppercase;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="options">Lista de Opções (uma por linha)</label>
+                <textarea id="options" placeholder="Apple&#10;Banana&#10;Orange&#10;Grape&#10;Watermelon&#10;Strawberry&#10;Pineapple&#10;Mango&#10;Kiwi"></textarea>
+            </div>
+
+            <div class="alert" id="alert">
+                <p class="alert-text" id="alertText"></p>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-generate" id="btnGenerate">Gerar Cartelas</button>
+                <button class="btn-print" id="btnPrint">🖨️ Imprimir</button>
+            </div>
+        </div>
+
+        <div class="cards-container" id="cardsContainer"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            let generatedCards = [];
+
+            function shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+
+            function generateUniqueCard(items, size, existingCards) {
+                const needed = size * size;
+                if (items.length < needed) return null;
+
+                let attempts = 0;
+                const maxAttempts = 1000;
+
+                while (attempts < maxAttempts) {
+                    const shuffled = shuffleArray(items);
+                    const card = shuffled.slice(0, needed);
+                    const cardKey = card.join('|');
+
+                    if (!existingCards.has(cardKey)) {
+                        existingCards.add(cardKey);
+                        return card;
+                    }
+                    attempts++;
+                }
+                return null;
+            }
+
+            function showAlert(message) {
+                $('#alertText').text(message);
+                $('#alert').fadeIn();
+                setTimeout(() => $('#alert').fadeOut(), 5000);
+            }
+
+            function hideAlert() {
+                $('#alert').fadeOut();
+            }
+
+            $('#btnGenerate').click(function() {
+                hideAlert();
+                
+                const gridSize = parseInt($('#gridSize').val());
+                const numCards = parseInt($('#numCards').val());
+                const roomId = $('#roomId').val().toUpperCase();
+                const optionsText = $('#options').val();
+
+                const itemList = optionsText
+                    .split('\n')
+                    .map(item => item.trim())
+                    .filter(item => item.length > 0);
+
+                const needed = gridSize * gridSize;
+
+                if (itemList.length < needed) {
+                    showAlert(`Você precisa de pelo menos ${needed} opções para um bingo ${gridSize}x${gridSize}`);
+                    return;
+                }
+
+                if (roomId.length > 4) {
+                    showAlert('A identificação deve ter no máximo 4 caracteres');
+                    return;
+                }
+
+                if (!roomId) {
+                    showAlert('Por favor, insira uma identificação');
+                    return;
+                }
+
+                const existingCards = new Set();
+                generatedCards = [];
+
+                for (let i = 0; i < numCards; i++) {
+                    const card = generateUniqueCard(itemList, gridSize, existingCards);
+                    if (!card) {
+                        showAlert(`Aviso: Apenas ${i} cartelas únicas foram geradas. Adicione mais opções para gerar ${numCards} cartelas diferentes.`);
+                        break;
+                    }
+                    generatedCards.push(card);
+                }
+
+                if (generatedCards.length > 0) {
+                    renderCards(generatedCards, gridSize, roomId);
+                    $('#btnPrint').fadeIn();
+                    $('html, body').animate({
+                        scrollTop: $('#cardsContainer').offset().top - 20
+                    }, 500);
+                }
+            });
+
+            $('#btnPrint').click(function() {
+                window.print();
+            });
+
+            function renderCards(cards, size, roomId) {
+                const container = $('#cardsContainer');
+                container.empty();
+
+                for (let i = 0; i < cards.length; i += 2) {
+                    const pageDiv = $('<div class="page-break"></div>');
+
+                    [cards[i], cards[i + 1]].forEach(card => {
+                        if (!card) return;
+
+                        const cardDiv = $('<div class="bingo-card"></div>');
+                        
+                        const header = $('<div class="card-header"><h2>BINGO</h2></div>');
+                        cardDiv.append(header);
+
+                        const grid = $(`<div class="bingo-grid grid-${size}"></div>`);
+                        
+                        card.forEach(item => {
+                            const cell = $(`
+                                <div class="bingo-cell">
+                                    <div class="cell-word">${item}</div>
+                                    <div class="cell-drawing"></div>
+                                </div>
+                            `);
+                            grid.append(cell);
+                        });
+
+                        cardDiv.append(grid);
+                        
+                        const badge = $(`<div class="card-badge">${roomId}</div>`);
+                        cardDiv.append(badge);
+
+                        const footer = $(`<div class="card-footer">© Caroline Castro</div>`);
+                        cardDiv.append(footer);
+
+                        pageDiv.append(cardDiv);
+                    });
+
+                    container.append(pageDiv);
+                }
+
+                container.fadeIn();
+            }
+
+            // Uppercase input
+            $('#roomId').on('input', function() {
+                $(this).val($(this).val().toUpperCase());
+            });
+        });
+    </script>
+</body>
+</html>
