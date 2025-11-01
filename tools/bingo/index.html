@@ -13,6 +13,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
     <!-- CSS Principal -->
     <link rel="stylesheet" href="../../css/styles.css">
     
@@ -22,8 +25,9 @@
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     
-    <!-- CSS Específico do Bingo -->
-    <style>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
     <!-- CSS Específico do Bingo -->
     <style>
         /* ============================================
@@ -42,19 +46,71 @@
             box-shadow: var(--shadow-lg);
             padding: var(--spacing-2xl);
             margin-bottom: var(--spacing-2xl);
+            transition: all var(--transition-base);
+            overflow: hidden;
+        }
+
+        .config-panel.collapsed {
+            padding: var(--spacing-lg);
+        }
+
+        .config-panel.collapsed .config-content {
+            display: none;
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+        }
+
+        .config-panel.collapsed .config-header {
+            margin-bottom: 0;
+        }
+
+        .toggle-config-btn {
+            background: transparent;
+            color: var(--primary-600);
+            border: 2px solid var(--primary-300);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--transition-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            white-space: nowrap;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .toggle-config-btn:hover {
+            background: var(--primary-50);
+            border-color: var(--primary-500);
+            color: var(--primary-700);
         }
 
         .page-title {
             color: var(--color-primary);
             font-size: var(--font-size-3xl);
-            margin-bottom: var(--spacing-lg);
-            text-align: center;
+            margin: 0;
             font-weight: var(--font-weight-bold);
+            text-align: center;
+        }
+
+        .config-panel.collapsed .page-title {
+            font-size: var(--font-size-xl);
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: var(--spacing-md);
             margin-bottom: var(--spacing-lg);
         }
@@ -79,12 +135,147 @@
             font-family: var(--font-family-base);
             transition: all var(--transition-base);
             color: var(--color-text-primary);
+            background-color: white;
+        }
+
+        /* Estilização específica para select (dropdown) */
+        select {
+            padding-right: var(--spacing-xl);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2316a34a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right var(--spacing-md) center;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: var(--primary-400);
+        }
+
+        /* Estilização das opções do dropdown */
+        select option {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background-color: white;
+            color: var(--color-text-primary);
+            font-weight: var(--font-weight-normal);
+        }
+
+        /* Firefox - hover nas opções */
+        select option:hover {
+            background-color: var(--primary-100) !important;
+            background: var(--primary-100) !important;
+            color: var(--primary-800) !important;
+        }
+
+        /* Chrome/Edge - opção selecionada */
+        select option[selected] {
+            background-color: var(--primary-200) !important;
+            background: linear-gradient(0deg, var(--primary-200) 0%, var(--primary-200) 100%);
+            color: var(--primary-900);
+            font-weight: var(--font-weight-medium);
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px var(--primary-100);
+        }
+
+        /* ============================================
+           CUSTOMIZAÇÃO SELECT2
+           ============================================ */
+        
+        .select2-container--default .select2-selection--single {
+            border: var(--border-width-medium) solid var(--color-border);
+            border-radius: var(--border-radius-md);
+            height: auto;
+            padding: var(--spacing-md);
+            background-color: white;
+            transition: all var(--transition-base);
+        }
+
+        .select2-container--default .select2-selection--single:hover {
+            border-color: var(--primary-400);
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: var(--color-primary);
+            outline: none;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--color-text-primary);
+            line-height: normal;
+            padding: 0;
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            right: var(--spacing-md);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: var(--primary-600) transparent transparent transparent;
+            border-width: 6px 5px 0 5px;
+        }
+
+        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+            border-color: transparent transparent var(--primary-600) transparent;
+            border-width: 0 5px 6px 5px;
+        }
+
+        .select2-container--default .select2-dropdown {
+            border: var(--border-width-medium) solid var(--color-primary);
+            border-top: none;
+            border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+            overflow: hidden;
+        }
+
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-color: var(--color-primary);
+        }
+
+        .select2-container--default .select2-results__option {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            color: var(--color-text-primary);
+            background-color: white;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--primary-100) !important;
+            color: var(--primary-800) !important;
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: var(--primary-200) !important;
+            color: var(--primary-900) !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected=true] {
+            background-color: var(--primary-300) !important;
+            color: var(--primary-900) !important;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-dropdown-custom {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .select2-container--open {
+            z-index: 9999;
+        }
+
+        .form-group {
+            position: relative;
         }
 
         textarea {
@@ -123,16 +314,32 @@
             filter: brightness(1.1);
         }
 
+        /* Botão de Imprimir Flutuante */
         .btn-print {
+            position: fixed;
+            bottom: var(--spacing-2xl);
+            right: var(--spacing-2xl);
             background: var(--primary-600);
             color: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            border-radius: var(--border-radius-full);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-family: var(--font-family-base);
             display: none;
+            align-items: center;
+            gap: var(--spacing-xs);
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
         }
 
         .btn-print:hover {
             background: var(--primary-700);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-2xl);
         }
 
         .alert {
@@ -155,35 +362,50 @@
             display: none;
         }
 
+        /* Visualização em escala A4 */
         .page-break {
             background: var(--color-surface);
-            padding: 20mm;
             margin-bottom: var(--spacing-2xl);
             border-radius: var(--border-radius-xl);
             box-shadow: var(--shadow-md);
+            
+            /* Proporções A4: 210mm x 297mm (1:1.414) */
+            width: 100%;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            aspect-ratio: 210 / 297;
+            
+            padding: 5%;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 10mm;
+            gap: 3%;
         }
 
         .bingo-card {
             background: white;
             border: 3px solid var(--primary-500);
             border-radius: var(--border-radius-lg);
-            padding: 30px 20px;
+            padding: 3%;
             position: relative;
             flex: 1;
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
+            /* Mantém proporção de meia página A4 horizontal (148.5mm x 210mm) */
+            aspect-ratio: 148.5 / 210;
+            min-height: 0;
         }
 
         .card-header {
             text-align: center;
             margin-bottom: 15px;
+            flex-shrink: 0;
         }
 
         .card-header h2 {
-            font-size: 28px;
+            font-size: clamp(18px, 3vw, 28px);
             font-weight: var(--font-weight-bold);
             color: var(--primary-700);
             margin: 0;
@@ -194,6 +416,8 @@
             display: grid;
             gap: 8px;
             flex: 1;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .grid-2 {
@@ -215,11 +439,12 @@
             background: var(--primary-50);
             display: flex;
             flex-direction: column;
-            min-height: 80px;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .cell-word {
-            font-size: 18px;
+            font-size: clamp(14px, 2vw, 18px);
             font-weight: var(--font-weight-semibold);
             color: var(--primary-700);
             text-align: center;
@@ -234,11 +459,38 @@
             border: 1px dashed var(--primary-300);
             border-radius: var(--border-radius-sm);
             background: white;
-            min-height: 50px;
+            min-height: 0;
         }
 
         .bingo-grid:not(.grid-4) .cell-drawing {
-            min-height: 70px;
+            min-height: 0;
+        }
+
+        /* Células apenas com texto (sem espaço para desenho) */
+        .bingo-cell-text-only {
+            min-height: auto;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .cell-word-only {
+            font-size: clamp(16px, 2.5vw, 20px);
+            font-weight: var(--font-weight-semibold);
+            color: var(--primary-700);
+            text-align: center;
+            line-height: 1.3;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Ajustes de tamanho para grades menores */
+        .grid-2 .cell-word-only {
+            font-size: clamp(18px, 3vw, 24px);
+        }
+
+        .grid-4 .cell-word-only {
+            font-size: clamp(12px, 2vw, 16px);
         }
 
         .card-badge {
@@ -255,10 +507,10 @@
 
         .card-footer {
             position: absolute;
-            bottom: 4px;
+            bottom: 1px;
             left: 10px;
             color: var(--color-text-secondary);
-            font-size: 11px;
+            font-size: 10px;
             opacity: 0.9;
             font-weight: var(--font-weight-semibold);
         }
@@ -271,7 +523,7 @@
                 background: white;
             }
 
-            .header, .footer, .config-panel {
+            .header, .footer, .config-panel, .btn-print {
                 display: none !important;
             }
 
@@ -376,10 +628,17 @@
          ============================================ -->
     <main style="flex: 1; padding: var(--spacing-2xl) 0;">
         <div class="container">
-            <div class="config-panel">
-                <h1 class="page-title">Gerador de Cartelas de Bingo</h1>
-            
-            <div class="form-grid">
+            <div class="config-panel" id="configPanel">
+                <div class="config-header">
+                    <h1 class="page-title">Gerador de Cartelas de Bingo</h1>
+                    <button class="toggle-config-btn" id="toggleConfigBtn" style="display: none;">
+                        <span>▲</span>
+                        <span>Recolher</span>
+                    </button>
+                </div>
+
+                <div class="config-content">
+                    <div class="form-grid">
                 <div class="form-group">
                     <label for="gridSize">Tamanho da Grade</label>
                     <select id="gridSize">
@@ -398,6 +657,14 @@
                     <label for="roomId">Identificação (até 4 letras)</label>
                     <input type="text" id="roomId" maxlength="4" value="1A" style="text-transform: uppercase;">
                 </div>
+
+                <div class="form-group">
+                    <label for="drawingSpace">Espaço para Desenho</label>
+                    <select id="drawingSpace">
+                        <option value="true" selected>Com espaço</option>
+                        <option value="false" selected>Apenas texto</option>
+                    </select>
+                </div>
             </div>
 
             <div class="form-group">
@@ -409,11 +676,13 @@
                 <p class="alert-text" id="alertText"></p>
             </div>
 
-                <div class="button-group">
-                    <button class="btn-generate" id="btnGenerate">Gerar Cartelas</button>
-                    <button class="btn-print" id="btnPrint">🖨️ Imprimir</button>
+                    <div class="button-group">
+                        <button class="btn-generate" id="btnGenerate">Gerar Cartelas</button>
+                    </div>
                 </div>
             </div>
+
+            <button class="btn-print" id="btnPrint">🖨️ Imprimir</button>
 
             <div class="cards-container" id="cardsContainer"></div>
         </div>
@@ -441,6 +710,23 @@
 
     <script>
         $(document).ready(function() {
+            // Inicializar Select2 nos selects
+            $('#gridSize').select2({
+                minimumResultsForSearch: Infinity, // Remove a barra de busca
+                width: '100%',
+                dropdownParent: $('#gridSize').parent(),
+                dropdownAutoWidth: true,
+                dropdownCssClass: 'select2-dropdown-custom'
+            });
+
+            $('#drawingSpace').select2({
+                minimumResultsForSearch: Infinity,
+                width: '100%',
+                dropdownParent: $('#drawingSpace').parent(),
+                dropdownAutoWidth: true,
+                dropdownCssClass: 'select2-dropdown-custom'
+            });
+
             let generatedCards = [];
 
             function shuffleArray(array) {
@@ -490,6 +776,7 @@
                 const numCards = parseInt($('#numCards').val());
                 const roomId = $('#roomId').val().toUpperCase();
                 const optionsText = $('#options').val();
+                const hasDrawingSpace = $('#drawingSpace').val() === 'true';
 
                 const itemList = optionsText
                     .split('\n')
@@ -526,11 +813,20 @@
                 }
 
                 if (generatedCards.length > 0) {
-                    renderCards(generatedCards, gridSize, roomId);
+                    renderCards(generatedCards, gridSize, roomId, hasDrawingSpace);
                     $('#btnPrint').fadeIn();
-                    $('html, body').animate({
-                        scrollTop: $('#cardsContainer').offset().top - 20
-                    }, 500);
+                    
+                    // Mostrar botão de recolher e recolher painel
+                    $('#toggleConfigBtn').fadeIn();
+                    $('#configPanel').addClass('collapsed');
+                    $('#toggleConfigBtn').html('<span>Mostrar</span><span>▼</span>');
+                    
+                    // Scroll suave para as cartelas
+                    setTimeout(() => {
+                        $('html, body').animate({
+                            scrollTop: $('#cardsContainer').offset().top - 100
+                        }, 500);
+                    }, 300);
                 }
             });
 
@@ -538,7 +834,7 @@
                 window.print();
             });
 
-            function renderCards(cards, size, roomId) {
+            function renderCards(cards, size, roomId, hasDrawingSpace) {
                 const container = $('#cardsContainer');
                 container.empty();
 
@@ -556,13 +852,22 @@
                         const grid = $(`<div class="bingo-grid grid-${size}"></div>`);
                         
                         card.forEach(item => {
-                            const cell = $(`
-                                <div class="bingo-cell">
-                                    <div class="cell-word">${item}</div>
-                                    <div class="cell-drawing"></div>
-                                </div>
-                            `);
-                            grid.append(cell);
+                            let cellHTML;
+                            if (hasDrawingSpace) {
+                                cellHTML = `
+                                    <div class="bingo-cell">
+                                        <div class="cell-word">${item}</div>
+                                        <div class="cell-drawing"></div>
+                                    </div>
+                                `;
+                            } else {
+                                cellHTML = `
+                                    <div class="bingo-cell bingo-cell-text-only">
+                                        <div class="cell-word-only">${item}</div>
+                                    </div>
+                                `;
+                            }
+                            grid.append($(cellHTML));
                         });
 
                         cardDiv.append(grid);
@@ -585,6 +890,20 @@
             // Uppercase input
             $('#roomId').on('input', function() {
                 $(this).val($(this).val().toUpperCase());
+            });
+
+            // Toggle do painel de configurações
+            $('#toggleConfigBtn').click(function() {
+                const panel = $('#configPanel');
+                const btn = $(this);
+                
+                panel.toggleClass('collapsed');
+                
+                if (panel.hasClass('collapsed')) {
+                    btn.html('<span>Mostrar</span><span>▼</span>');
+                } else {
+                    btn.html('<span>Recolher</span><span>▲</span>');
+                }
             });
         });
     </script>
