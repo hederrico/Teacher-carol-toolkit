@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gerador de Cruzadinha - Teacher Carol's Toolkit">
+    <meta name="author" content="Caroline Castro">
+    
+    <title>Gerador de Cruzadinha | Teacher Carol's Toolkit</title>
+    
+    <!-- Google Fonts - Lexend -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="../../css/styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../../images/logo.png">
+    
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <!-- CSS Específico da Cruzadinha -->
+    <style>
+        /* ============================================
+           ESTILOS ESPECÍFICOS DA FERRAMENTA CRUZADINHA
+           ============================================ */
+        
+        body {
+            background: var(--gradient-surface);
+        }
+
+        /* Painel de Configuração */
+        .config-panel {
+            background: var(--color-surface);
+            border-radius: var(--border-radius-xl);
+            border: var(--border-width-medium) solid var(--color-border);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-2xl);
+            margin-bottom: var(--spacing-2xl);
+            transition: all var(--transition-base);
+            overflow: hidden;
+        }
+
+        .config-panel.collapsed {
+            padding: var(--spacing-lg);
+        }
+
+        .config-panel.collapsed .config-content {
+            display: none;
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+        }
+
+        .config-panel.collapsed .config-header {
+            margin-bottom: 0;
+            justify-content: space-between;
+        }
+
+        .toggle-config-btn {
+            background: transparent;
+            color: var(--primary-600);
+            border: 2px solid var(--primary-300);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--transition-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            white-space: nowrap;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .toggle-config-btn:hover {
+            background: var(--primary-50);
+            border-color: var(--primary-500);
+            color: var(--primary-700);
+        }
+
+        .page-title {
+            color: var(--color-primary);
+            font-size: var(--font-size-3xl);
+            margin: 0;
+            font-weight: var(--font-weight-bold);
+            text-align: center;
+        }
+
+        .config-panel.collapsed .page-title {
+            font-size: var(--font-size-xl);
+        }
+
+        .section-title {
+            color: var(--color-primary);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin: var(--spacing-xl) 0 var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--primary-200);
+        }
+
+        .words-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .btn-example {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            border: 2px solid var(--primary-300);
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+            transition: all var(--transition-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-example:hover {
+            background: var(--primary-200);
+            border-color: var(--primary-400);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        label {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        textarea {
+            resize: vertical;
+            font-family: 'Consolas', 'Monaco', monospace;
+            min-height: 200px;
+            line-height: 1.8;
+            padding: var(--spacing-md);
+            border: var(--border-width-medium) solid var(--color-border);
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base);
+            color: var(--color-text-primary);
+            background-color: white;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-xl);
+        }
+
+        .btn-generate {
+            flex: 1;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-family: var(--font-family-base);
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            filter: brightness(1.1);
+        }
+
+        /* Botão de Imprimir Flutuante */
+        .btn-print {
+            position: fixed;
+            bottom: var(--spacing-2xl);
+            right: var(--spacing-2xl);
+            background: var(--primary-600);
+            color: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            border-radius: var(--border-radius-full);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-family: var(--font-family-base);
+            display: none;
+            align-items: center;
+            gap: var(--spacing-xs);
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+        }
+
+        .btn-print:hover {
+            background: var(--primary-700);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .alert {
+            background: #fef3c7;
+            border: var(--border-width-medium) solid #fbbf24;
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            display: none;
+        }
+
+        .alert-text {
+            color: #92400e;
+            font-size: var(--font-size-sm);
+            margin: 0;
+        }
+
+        /* Container da Cruzadinha */
+        .crossword-container {
+            display: none;
+            background: var(--color-surface);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-2xl);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .crossword-wrapper {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-2xl);
+        }
+
+        /* Grid da Cruzadinha */
+        .crossword-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+        }
+
+        .grid-table {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+
+        .grid-cell {
+            border: 2px solid var(--primary-300);
+            text-align: center;
+            vertical-align: middle;
+            font-weight: var(--font-weight-semibold);
+            color: var(--primary-700);
+            background: white;
+            position: relative;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+
+        .grid-cell.blocked {
+            background: white;
+            border: 1px solid var(--primary-200);
+            position: relative;
+            z-index: 0;
+        }
+
+        .grid-cell.blocked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            width: 70%;
+            height: 1px;
+            background: var(--primary-300);
+        }
+
+        .grid-cell.filled {
+            background: var(--primary-50);
+            border: 2px solid var(--primary-600);
+            z-index: 2;
+        }
+
+        .grid-cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: inherit;
+            font-weight: inherit;
+            color: inherit;
+            text-transform: uppercase;
+            outline: none;
+            padding: 0;
+            font-family: var(--font-family-base);
+        }
+
+        .grid-cell input:focus {
+            background: var(--primary-100);
+        }
+
+        .cell-number {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-weight: var(--font-weight-bold);
+            color: var(--primary-600);
+        }
+
+        /* Lista de Dicas */
+        .clues-section {
+            background: white;
+            border: 2px solid var(--primary-200);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .clues-title {
+            color: var(--color-primary);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--primary-200);
+        }
+
+        .clue-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .clue-item {
+            padding: var(--spacing-sm) 0;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        .clue-number {
+            font-weight: var(--font-weight-bold);
+            color: var(--primary-600);
+            margin-right: var(--spacing-xs);
+        }
+
+        .clues-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .clues-group:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Botão de Verificar */
+        .btn-check {
+            width: 100%;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-family: var(--font-family-base);
+            margin-top: var(--spacing-lg);
+        }
+
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            filter: brightness(1.1);
+        }
+
+        /* Confetes */
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            background: var(--primary-500);
+            position: fixed;
+            z-index: 9999;
+            animation: confetti-fall 5s linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Mensagem de Feedback */
+        .feedback-message {
+            display: none;
+            background: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-lg);
+            border: 3px solid;
+        }
+
+        .feedback-message.success {
+            border-color: var(--primary-500);
+            background: var(--primary-50);
+        }
+
+        .feedback-message.error {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        .feedback-message h3 {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: var(--font-size-xl);
+        }
+
+        .feedback-message.success h3 {
+            color: var(--primary-600);
+        }
+
+        .feedback-message.error h3 {
+            color: #92400e;
+        }
+
+        .feedback-message p {
+            margin: 0;
+            color: var(--color-text-secondary);
+        }
+
+        .btn-new-game {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-xl);
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-family: var(--font-family-base);
+            margin-top: var(--spacing-md);
+        }
+
+        .btn-new-game:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            filter: brightness(1.1);
+        }
+
+        /* Estilos de Impressão */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            .header, .footer, .config-panel, .btn-print, .btn-check, .feedback-message {
+                display: none !important;
+            }
+
+            .crossword-container {
+                display: block !important;
+                box-shadow: none;
+            }
+
+            .crossword-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-cell.blocked::after {
+                background: #999;
+            }
+
+            .grid-cell input {
+                border: none;
+                background: transparent;
+            }
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .crossword-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .clues-section {
+                order: 2;
+            }
+            
+            .crossword-grid {
+                order: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .config-panel {
+                padding: var(--spacing-lg);
+            }
+
+            .page-title {
+                font-size: var(--font-size-2xl);
+            }
+
+            .word-entry {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-cell {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-base);
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../../index.html" class="logo-container">
+                <img src="../../images/logo.png" alt="Teacher Carol's Toolkit Logo" class="logo-img">
+                <div class="site-title">
+                    <h1>Teacher Carol's Toolkit</h1>
+                    <span class="site-subtitle">Gerador de Cruzadinha</span>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- ============================================
+         CONTEÚDO PRINCIPAL
+         ============================================ -->
+    <main style="flex: 1; padding: var(--spacing-2xl) 0;">
+        <div class="container">
+            <div class="config-panel" id="configPanel">
+                <div class="config-header">
+                    <h1 class="page-title">Gerador de Cruzadinha</h1>
+                    <button class="toggle-config-btn" id="toggleConfigBtn" style="display: none;">
+                        <span>▲</span>
+                        <span>Recolher</span>
+                    </button>
+                </div>
+
+                <div class="config-content">
+                    <!-- Lista de Palavras e Dicas -->
+                    <div class="words-section">
+                        <h2 class="section-title">Palavras e Dicas</h2>
+                        <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">
+                            Cole sua lista com cada palavra seguida de sua dica, separadas por <strong>dois pontos</strong> (:). Uma palavra por linha.
+                        </p>
+                        
+                        <div class="form-group">
+                            <div class="input-header">
+                                <label for="wordsList">Lista de Palavras e Dicas</label>
+                                <button type="button" class="btn-example" id="btnExample">
+                                    <span>✨</span>
+                                    <span>Gerar Exemplo</span>
+                                </button>
+                            </div>
+                            <textarea id="wordsList" rows="12" placeholder="Digite aqui no formato:&#10;&#10;PALAVRA: Dica da palavra&#10;OUTRA: Dica desta outra palavra"></textarea>
+                        </div>
+                        
+                        <p style="color: var(--color-text-secondary); font-size: var(--font-size-xs); margin-top: var(--spacing-sm); font-style: italic;">
+                            💡 Dica: A direção (horizontal/vertical) é definida automaticamente para o melhor encaixe possível.
+                        </p>
+                    </div>
+
+                    <div class="alert" id="alert">
+                        <p class="alert-text" id="alertText"></p>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-generate" id="btnGenerate">Gerar Cruzadinha</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-print" id="btnPrint">🖨️ Imprimir</button>
+
+            <!-- Container da Cruzadinha Gerada -->
+            <div class="crossword-container" id="crosswordContainer">
+                <div class="feedback-message" id="feedbackMessage">
+                    <h3 id="feedbackTitle"></h3>
+                    <p id="feedbackText"></p>
+                    <button class="btn-new-game" id="btnNewGame" style="display: none;">🎲 Gerar Novo Jogo</button>
+                </div>
+                
+                <h2 style="text-align: center; color: var(--color-primary); margin-bottom: var(--spacing-xl);">
+                    Palavra Cruzada
+                </h2>
+                <div class="crossword-wrapper">
+                    <div>
+                        <div class="crossword-grid" id="crosswordGrid">
+                            <!-- Grid será gerado aqui -->
+                        </div>
+                    </div>
+                    <div class="clues-section">
+                        <div class="clues-group">
+                            <h3 class="clues-title">Horizontais</h3>
+                            <ul class="clue-list" id="acrossClues">
+                                <!-- Dicas horizontais -->
+                            </ul>
+                        </div>
+                        <div class="clues-group">
+                            <h3 class="clues-title">Verticais</h3>
+                            <ul class="clue-list" id="downClues">
+                                <!-- Dicas verticais -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============================================
+         FOOTER
+         ============================================ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>
+                    Feito com <span class="footer-heart">❤️</span> para Teacher Carol
+                </p>
+                <p>
+                    © 2025 Caroline Castro - Todos os direitos reservados
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================
+         JAVASCRIPT
+         ============================================ -->
+    <script>
+        // ============================================
+        // GERADOR DE CRUZADINHA - ALGORITMO AUTOMÁTICO
+        // ============================================
+
+        // Botão de Gerar Exemplo
+        $('#btnExample').click(function() {
+            const exampleWords = [
+                'CACHORRO: Animal de estimação que late',
+                'GATO: Felino doméstico que mia',
+                'BORBOLETA: Inseto colorido com asas',
+                'ESCOLA: Lugar onde estudamos',
+                'LIVRO: Objeto com páginas para ler',
+                'COMPUTADOR: Máquina eletrônica para trabalhar',
+                'BICICLETA: Veículo de duas rodas',
+                'MÚSICA: Arte dos sons organizados',
+                'FUTEBOL: Esporte jogado com os pés',
+                'FLORESTA: Grande área com muitas árvores'
+            ];
+            
+            $('#wordsList').val(exampleWords.join('\n'));
+            
+            // Feedback visual
+            $(this).html('<span>✓</span><span>Exemplo Carregado</span>');
+            setTimeout(() => {
+                $(this).html('<span>✨</span><span>Gerar Exemplo</span>');
+            }, 2000);
+        });
+
+        $('#btnGenerate').click(function() {
+            const wordsList = $('#wordsList').val().trim();
+            
+            if (!wordsList) {
+                showAlert('Por favor, insira pelo menos uma palavra com sua dica');
+                return;
+            }
+
+            // Parse da lista de palavras
+            const lines = wordsList.split('\n').filter(line => line.trim());
+            const words = [];
+            
+            for (const line of lines) {
+                // Aceitar tanto : quanto | como separadores
+                const separatorIndex = line.indexOf(':') !== -1 ? line.indexOf(':') : line.indexOf('|');
+                
+                if (separatorIndex !== -1) {
+                    const word = line.substring(0, separatorIndex).trim().toUpperCase().replace(/[^A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/g, '');
+                    const clue = line.substring(separatorIndex + 1).trim();
+                    
+                    if (word.length > 1 && clue) {
+                        words.push({ word, clue });
+                    }
+                }
+            }
+
+            if (words.length === 0) {
+                showAlert('Nenhuma palavra válida encontrada. Use o formato: PALAVRA: Dica');
+                return;
+            }
+
+            hideAlert();
+
+            try {
+                generateCrossword(words);
+                
+                $('#btnPrint').fadeIn();
+                $('#toggleConfigBtn').fadeIn();
+                $('#configPanel').addClass('collapsed');
+                $('#toggleConfigBtn').html('<span>Mostrar</span><span>▼</span>');
+                
+                setTimeout(() => {
+                    $('html, body').animate({
+                        scrollTop: $('#crosswordContainer').offset().top - 100
+                    }, 500);
+                }, 300);
+            } catch (error) {
+                showAlert('Erro ao gerar cruzadinha. Tente com palavras diferentes.');
+                console.error(error);
+            }
+        });
+
+        function showAlert(message) {
+            $('#alertText').text(message);
+            $('#alert').fadeIn();
+            setTimeout(() => $('#alert').fadeOut(), 5000);
+        }
+
+        function hideAlert() {
+            $('#alert').fadeOut();
+        }
+
+        // ============================================
+        // ALGORITMO DE GERAÇÃO DE CRUZADINHA
+        // ============================================
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function generateCrossword(inputWords) {
+            // Embaralhar palavras para gerar resultados diferentes a cada vez
+            const shuffledWords = shuffleArray([...inputWords]);
+            
+            // Ordenar palavras por tamanho (maiores primeiro)
+            const words = shuffledWords.sort((a, b) => b.word.length - a.word.length);
+            
+            // Grid com tamanho máximo inicial
+            const maxSize = 50;
+            const grid = Array(maxSize).fill().map(() => Array(maxSize).fill(null));
+            const placedWords = [];
+            const usedWords = new Set(); // Rastrear palavras já colocadas
+            let clueNumber = 1;
+
+            // Colocar primeira palavra no centro (horizontal)
+            const firstWord = words[0];
+            const centerRow = Math.floor(maxSize / 2);
+            const centerCol = Math.floor(maxSize / 2) - Math.floor(firstWord.word.length / 2);
+            
+            placeWord(grid, {
+                word: firstWord.word,
+                clue: firstWord.clue,
+                direction: 'across',
+                row: centerRow,
+                col: centerCol,
+                number: clueNumber++
+            }, placedWords);
+            
+            usedWords.add(firstWord.word); // Marcar como usada
+
+            // Tentar colocar as outras palavras
+            for (let i = 1; i < words.length; i++) {
+                const currentWord = words[i];
+                
+                // Pular se palavra já foi colocada
+                if (usedWords.has(currentWord.word)) {
+                    console.warn(`Palavra já colocada, pulando: ${currentWord.word}`);
+                    continue;
+                }
+                
+                let placed = false;
+                const attempts = [];
+
+                // Tentar intersecções com todas as palavras já colocadas
+                for (const placedWord of placedWords) {
+                    // Tentar ambas as direções
+                    for (const direction of ['across', 'down']) {
+                        // Pular se mesma direção
+                        if (placedWord.direction === direction) continue;
+
+                        // Procurar letras em comum
+                        for (let p = 0; p < placedWord.word.length; p++) {
+                            for (let c = 0; c < currentWord.word.length; c++) {
+                                if (placedWord.word[p] === currentWord.word[c]) {
+                                    let newRow, newCol;
+                                    
+                                    if (direction === 'across') {
+                                        newRow = placedWord.row + (placedWord.direction === 'down' ? p : 0);
+                                        newCol = placedWord.col - c + (placedWord.direction === 'across' ? p : 0);
+                                    } else {
+                                        newRow = placedWord.row - c + (placedWord.direction === 'down' ? p : 0);
+                                        newCol = placedWord.col + (placedWord.direction === 'across' ? p : 0);
+                                    }
+
+                                    if (canPlaceWord(grid, currentWord.word, direction, newRow, newCol, maxSize)) {
+                                        // Contar intersecções reais
+                                        let intersectionCount = 0;
+                                        for (let i = 0; i < currentWord.word.length; i++) {
+                                            const checkRow = direction === 'across' ? newRow : newRow + i;
+                                            const checkCol = direction === 'across' ? newCol + i : newCol;
+                                            
+                                            if (grid[checkRow][checkCol] && grid[checkRow][checkCol].letter === currentWord.word[i]) {
+                                                intersectionCount++;
+                                            }
+                                        }
+                                        
+                                        attempts.push({
+                                            word: currentWord.word,
+                                            clue: currentWord.clue,
+                                            direction: direction,
+                                            row: newRow,
+                                            col: newCol,
+                                            number: clueNumber,
+                                            intersections: intersectionCount
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Se encontrou opções, escolher a melhor
+                if (attempts.length > 0) {
+                    // Ordenar por número de intersecções (menos é melhor para evitar complexidade)
+                    // e depois por proximidade ao centro
+                    attempts.sort((a, b) => {
+                        // Priorizar MENOS intersecções (1 é melhor que múltiplas)
+                        if (a.intersections !== b.intersections) {
+                            return a.intersections - b.intersections;
+                        }
+                        // Se igual, escolher mais próximo do centro
+                        const distA = Math.abs(a.row - centerRow) + Math.abs(a.col - centerCol);
+                        const distB = Math.abs(b.row - centerRow) + Math.abs(b.col - centerCol);
+                        return distA - distB;
+                    });
+                    
+                    console.log(`Colocando "${currentWord.word}" com ${attempts[0].intersections} intersecção(ões)`);
+                    placeWord(grid, attempts[0], placedWords);
+                    usedWords.add(currentWord.word);
+                    clueNumber++;
+                    placed = true;
+                }
+
+                // Se não conseguiu colocar por intersecção, tentar colocar de forma independente
+                if (!placed) {
+                    console.log(`Tentando colocar "${currentWord.word}" independentemente...`);
+                    
+                    // Tentar colocar em posições aleatórias próximas ao centro
+                    const tryPositions = [];
+                    const range = 10; // Área ao redor do centro para tentar
+                    
+                    for (let attempt = 0; attempt < 50; attempt++) {
+                        const direction = Math.random() > 0.5 ? 'across' : 'down';
+                        const randomRow = centerRow + Math.floor(Math.random() * range * 2 - range);
+                        const randomCol = centerCol + Math.floor(Math.random() * range * 2 - range);
+                        
+                        if (canPlaceWordIndependent(grid, currentWord.word, direction, randomRow, randomCol, maxSize)) {
+                            const dist = Math.abs(randomRow - centerRow) + Math.abs(randomCol - centerCol);
+                            tryPositions.push({
+                                word: currentWord.word,
+                                clue: currentWord.clue,
+                                direction: direction,
+                                row: randomRow,
+                                col: randomCol,
+                                number: clueNumber,
+                                distance: dist
+                            });
+                        }
+                    }
+                    
+                    if (tryPositions.length > 0) {
+                        // Escolher a mais próxima do centro
+                        tryPositions.sort((a, b) => a.distance - b.distance);
+                        console.log(`Colocando "${currentWord.word}" independentemente`);
+                        placeWord(grid, tryPositions[0], placedWords);
+                        usedWords.add(currentWord.word);
+                        clueNumber++;
+                        placed = true;
+                    }
+                }
+
+                if (!placed) {
+                    console.warn(`Não foi possível colocar a palavra: ${currentWord.word}`);
+                }
+            }
+
+            // Calcular bounds compactos
+            const bounds = calculateTightBounds(grid, placedWords);
+            
+            // Renderizar com tamanho dinâmico
+            renderGrid(grid, bounds, placedWords);
+            renderClues(placedWords);
+            
+            $('#crosswordContainer').fadeIn();
+        }
+
+        function placeWord(grid, wordData, placedWords) {
+            const { word, direction, row, col } = wordData;
+            
+            for (let i = 0; i < word.length; i++) {
+                const r = direction === 'down' ? row + i : row;
+                const c = direction === 'across' ? col + i : col;
+                
+                if (!grid[r][c]) {
+                    // Célula vazia - criar nova
+                    grid[r][c] = {
+                        letter: word[i],
+                        number: i === 0 ? wordData.number : null
+                    };
+                } else {
+                    // Célula já ocupada (intersecção)
+                    // Verificar se a letra é compatível
+                    if (grid[r][c].letter !== word[i]) {
+                        console.error(`ERRO: Tentando colocar ${word[i]} em célula com ${grid[r][c].letter}`);
+                        return false;
+                    }
+                    // Se for a primeira letra da palavra atual E não tem número ainda, adicionar
+                    if (i === 0 && !grid[r][c].number) {
+                        grid[r][c].number = wordData.number;
+                    }
+                }
+            }
+            
+            placedWords.push(wordData);
+            return true;
+        }
+
+        function canPlaceWord(grid, word, direction, row, col, maxSize) {
+            // Verificar limites
+            if (direction === 'across') {
+                if (col < 1 || col + word.length >= maxSize - 1 || row < 1 || row >= maxSize - 1) {
+                    return false;
+                }
+            } else {
+                if (row < 1 || row + word.length >= maxSize - 1 || col < 1 || col >= maxSize - 1) {
+                    return false;
+                }
+            }
+
+            // Verificar espaço antes e depois da palavra
+            if (direction === 'across') {
+                if (grid[row][col - 1] !== null) return false;
+                if (grid[row][col + word.length] !== null) return false;
+            } else {
+                if (grid[row - 1][col] !== null) return false;
+                if (grid[row + word.length][col] !== null) return false;
+            }
+
+            let intersectionCount = 0;
+
+            // Verificar cada posição da palavra
+            for (let i = 0; i < word.length; i++) {
+                const r = direction === 'down' ? row + i : row;
+                const c = direction === 'across' ? col + i : col;
+                
+                const cell = grid[r][c];
+                
+                if (cell) {
+                    // Célula ocupada - deve ser intersecção válida
+                    if (cell.letter !== word[i]) {
+                        return false;
+                    }
+                    intersectionCount++;
+                } else {
+                    // Célula vazia - verificar apenas adjacências perpendiculares
+                    if (direction === 'across') {
+                        // Palavra horizontal - verificar acima e abaixo
+                        if (grid[r - 1][c] !== null || grid[r + 1][c] !== null) {
+                            return false;
+                        }
+                    } else {
+                        // Palavra vertical - verificar esquerda e direita
+                        if (grid[r][c - 1] !== null || grid[r][c + 1] !== null) {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return intersectionCount >= 1;
+        }
+
+        function canPlaceWordIndependent(grid, word, direction, row, col, maxSize) {
+            // Similar a canPlaceWord mas NÃO exige intersecções (para palavras independentes)
+            
+            // Verificar limites
+            if (direction === 'across') {
+                if (col < 1 || col + word.length >= maxSize - 1 || row < 1 || row >= maxSize - 1) {
+                    return false;
+                }
+            } else {
+                if (row < 1 || row + word.length >= maxSize - 1 || col < 1 || col >= maxSize - 1) {
+                    return false;
+                }
+            }
+
+            // Verificar espaço antes e depois da palavra
+            if (direction === 'across') {
+                if (grid[row][col - 1] !== null) return false;
+                if (grid[row][col + word.length] !== null) return false;
+            } else {
+                if (grid[row - 1][col] !== null) return false;
+                if (grid[row + word.length][col] !== null) return false;
+            }
+
+            // Verificar cada posição da palavra - TODAS devem estar vazias
+            for (let i = 0; i < word.length; i++) {
+                const r = direction === 'down' ? row + i : row;
+                const c = direction === 'across' ? col + i : col;
+                
+                const cell = grid[r][c];
+                
+                if (cell) {
+                    // Já tem letra - não pode colocar independente
+                    return false;
+                } else {
+                    // Célula vazia - verificar adjacências perpendiculares
+                    if (direction === 'across') {
+                        if (grid[r - 1][c] !== null || grid[r + 1][c] !== null) {
+                            return false;
+                        }
+                    } else {
+                        if (grid[r][c - 1] !== null || grid[r][c + 1] !== null) {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true; // Permite colocar sem intersecções
+        }
+
+        function calculateTightBounds(grid, placedWords) {
+            if (placedWords.length === 0) return { minRow: 0, maxRow: 10, minCol: 0, maxCol: 10 };
+
+            let minRow = grid.length, maxRow = 0;
+            let minCol = grid.length, maxCol = 0;
+
+            for (const word of placedWords) {
+                const endRow = word.direction === 'down' ? word.row + word.word.length - 1 : word.row;
+                const endCol = word.direction === 'across' ? word.col + word.word.length - 1 : word.col;
+
+                minRow = Math.min(minRow, word.row);
+                maxRow = Math.max(maxRow, endRow);
+                minCol = Math.min(minCol, word.col);
+                maxCol = Math.max(maxCol, endCol);
+            }
+
+            // Sem margem - usar os limites exatos das palavras
+            return {
+                minRow: minRow,
+                maxRow: maxRow,
+                minCol: minCol,
+                maxCol: maxCol
+            };
+        }
+
+        function renderGrid(grid, bounds, placedWords) {
+            const rows = bounds.maxRow - bounds.minRow + 1;
+            const cols = bounds.maxCol - bounds.minCol + 1;
+            
+            // Calcular tamanho dinâmico das células (SEMPRE QUADRADAS)
+            const maxGridSize = 600; // Tamanho máximo do grid em pixels
+            const cellSize = Math.floor(Math.min(maxGridSize / cols, maxGridSize / rows));
+            const fontSize = Math.max(10, Math.floor(cellSize * 0.35));
+            const numberSize = Math.max(8, Math.floor(cellSize * 0.2));
+            
+            let tableHTML = '<table class="grid-table">';
+            
+            for (let i = bounds.minRow; i <= bounds.maxRow; i++) {
+                tableHTML += '<tr>';
+                for (let j = bounds.minCol; j <= bounds.maxCol; j++) {
+                    const cell = grid[i][j];
+                    
+                    if (cell) {
+                        const number = cell.number ? `<span class="cell-number" style="font-size: ${numberSize}px;">${cell.number}</span>` : '';
+                        
+                        tableHTML += `<td class="grid-cell filled" style="width: ${cellSize}px; height: ${cellSize}px; min-width: ${cellSize}px; min-height: ${cellSize}px; max-width: ${cellSize}px; max-height: ${cellSize}px; font-size: ${fontSize}px;" data-row="${i}" data-col="${j}" data-answer="${cell.letter}">${number}<input type="text" maxlength="1" data-row="${i}" data-col="${j}"></td>`;
+                    } else {
+                        tableHTML += `<td class="grid-cell blocked" style="width: ${cellSize}px; height: ${cellSize}px; min-width: ${cellSize}px; min-height: ${cellSize}px; max-width: ${cellSize}px; max-height: ${cellSize}px;"></td>`;
+                    }
+                }
+                tableHTML += '</tr>';
+            }
+            
+            tableHTML += '</table>';
+            $('#crosswordGrid').html(tableHTML);
+            
+            // Adicionar navegação com setas
+            setupKeyboardNavigation();
+        }
+
+        function renderClues(placedWords) {
+            const acrossClues = placedWords.filter(w => w.direction === 'across').sort((a, b) => a.number - b.number);
+            const downClues = placedWords.filter(w => w.direction === 'down').sort((a, b) => a.number - b.number);
+
+            let acrossHTML = '';
+            if (acrossClues.length > 0) {
+                acrossClues.forEach(item => {
+                    acrossHTML += `<li class="clue-item"><span class="clue-number">${item.number}.</span>${item.clue}</li>`;
+                });
+            } else {
+                acrossHTML = '<li class="clue-item" style="font-style: italic; color: var(--color-text-secondary);">Nenhuma palavra horizontal</li>';
+            }
+            $('#acrossClues').html(acrossHTML);
+
+            let downHTML = '';
+            if (downClues.length > 0) {
+                downClues.forEach(item => {
+                    downHTML += `<li class="clue-item"><span class="clue-number">${item.number}.</span>${item.clue}</li>`;
+                });
+            } else {
+                downHTML = '<li class="clue-item" style="font-style: italic; color: var(--color-text-secondary);">Nenhuma palavra vertical</li>';
+            }
+            $('#downClues').html(downHTML);
+        }
+
+        $('#btnPrint').click(function() {
+            window.print();
+        });
+
+        // Toggle do painel de configurações
+        $('#toggleConfigBtn').click(function() {
+            const panel = $('#configPanel');
+            const btn = $(this);
+            
+            panel.toggleClass('collapsed');
+            
+            if (panel.hasClass('collapsed')) {
+                btn.html('<span>Mostrar</span><span>▼</span>');
+            } else {
+                btn.html('<span>Recolher</span><span>▲</span>');
+            }
+        });
+
+        // ============================================
+        // FUNCIONALIDADE DE JOGO INTERATIVO
+        // ============================================
+
+        let currentDirection = null; // 'horizontal' ou 'vertical'
+        let lastFocusedCell = null;
+
+        function setupKeyboardNavigation() {
+            $('.grid-cell input').on('focus', function() {
+                const currentRow = parseInt($(this).data('row'));
+                const currentCol = parseInt($(this).data('col'));
+                
+                // Verificar se esta célula tem número (início de palavra)
+                const currentCell = $(`.grid-cell[data-row="${currentRow}"][data-col="${currentCol}"]`);
+                const hasNumber = currentCell.find('.cell-number').length > 0;
+                
+                if (hasNumber) {
+                    // É início de palavra - redefinir direção baseado em adjacentes
+                    const hasRight = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`).length > 0;
+                    const hasDown = $(`.grid-cell input[data-row="${currentRow + 1}"][data-col="${currentCol}"]`).length > 0;
+                    
+                    if (hasRight && !hasDown) {
+                        currentDirection = 'horizontal';
+                    } else if (hasDown && !hasRight) {
+                        currentDirection = 'vertical';
+                    } else if (hasRight && hasDown) {
+                        // Ambas direções - verificar qual está incompleta
+                        const horizontalIncomplete = !isWordComplete(currentRow, currentCol, 'horizontal');
+                        const verticalIncomplete = !isWordComplete(currentRow, currentCol, 'vertical');
+                        
+                        if (horizontalIncomplete && !verticalIncomplete) {
+                            currentDirection = 'horizontal';
+                        } else if (verticalIncomplete && !horizontalIncomplete) {
+                            currentDirection = 'vertical';
+                        } else {
+                            // Ambas incompletas ou completas - priorizar horizontal
+                            currentDirection = 'horizontal';
+                        }
+                    }
+                } else if (lastFocusedCell) {
+                    // Não é início - detectar direção pelo movimento
+                    const lastRow = lastFocusedCell.row;
+                    const lastCol = lastFocusedCell.col;
+                    
+                    if (currentRow === lastRow && currentCol !== lastCol) {
+                        currentDirection = 'horizontal';
+                    } else if (currentCol === lastCol && currentRow !== lastRow) {
+                        currentDirection = 'vertical';
+                    }
+                }
+                
+                lastFocusedCell = { row: currentRow, col: currentCol };
+            });
+
+            $('.grid-cell input').on('keydown', function(e) {
+                const key = e.key;
+                const isLetter = key.length === 1 && /[A-ZÁÀÂÃÉÊÍÓÔÕÚÇa-záàâãéêíóôõúç]/.test(key);
+                
+                if (isLetter && $(this).val()) {
+                    // Se já tem valor e está digitando letra, limpar para permitir substituição
+                    $(this).val('');
+                }
+            });
+
+            $('.grid-cell input').on('input', function() {
+                let value = $(this).val().toUpperCase();
+                
+                // Validação: apenas letras (com acentos portugueses)
+                value = value.replace(/[^A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/g, '');
+                
+                // Se digitou mais de 1 caractere, pegar apenas o último
+                if (value.length > 1) {
+                    value = value.slice(-1);
+                }
+                
+                $(this).val(value);
+                
+                if (value.length === 1) {
+                    const currentRow = parseInt($(this).data('row'));
+                    const currentCol = parseInt($(this).data('col'));
+                    
+                    let nextInput = findNextInput(currentRow, currentCol);
+                    
+                    if (nextInput && nextInput.length) {
+                        nextInput.focus();
+                    }
+                }
+                
+                // Verificar automaticamente se todos os campos estão preenchidos
+                checkAnswersAutomatically();
+            });
+
+            $('.grid-cell input').on('keydown', function(e) {
+                const currentRow = parseInt($(this).data('row'));
+                const currentCol = parseInt($(this).data('col'));
+                let nextInput;
+
+                switch(e.key) {
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        currentDirection = 'horizontal';
+                        nextInput = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`);
+                        if (nextInput.length) {
+                            nextInput.focus();
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        currentDirection = 'horizontal';
+                        nextInput = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol - 1}"]`);
+                        if (nextInput.length) {
+                            nextInput.focus();
+                        }
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        currentDirection = 'vertical';
+                        nextInput = $(`.grid-cell input[data-row="${currentRow + 1}"][data-col="${currentCol}"]`);
+                        if (nextInput.length) {
+                            nextInput.focus();
+                        }
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        currentDirection = 'vertical';
+                        nextInput = $(`.grid-cell input[data-row="${currentRow - 1}"][data-col="${currentCol}"]`);
+                        if (nextInput.length) {
+                            nextInput.focus();
+                        }
+                        break;
+                    case 'Backspace':
+                        if ($(this).val() === '') {
+                            e.preventDefault();
+                            // Voltar na direção atual ou horizontal por padrão
+                            if (currentDirection === 'vertical') {
+                                nextInput = $(`.grid-cell input[data-row="${currentRow - 1}"][data-col="${currentCol}"]`);
+                            } else {
+                                nextInput = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol - 1}"]`);
+                            }
+                            
+                            if (nextInput.length) {
+                                nextInput.focus();
+                                nextInput.val('');
+                            }
+                        }
+                        break;
+                }
+            });
+        }
+
+        function findNextInput(currentRow, currentCol) {
+            let nextInput;
+            
+            // Tentar célula adjacente direta primeiro
+            if (currentDirection === 'horizontal') {
+                nextInput = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`);
+            } else if (currentDirection === 'vertical') {
+                nextInput = $(`.grid-cell input[data-row="${currentRow + 1}"][data-col="${currentCol}"]`);
+            } else {
+                // Sem direção definida - detectar baseado em adjacentes
+                const hasRight = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`).length > 0;
+                const hasDown = $(`.grid-cell input[data-row="${currentRow + 1}"][data-col="${currentCol}"]`).length > 0;
+                
+                if (hasRight && !hasDown) {
+                    currentDirection = 'horizontal';
+                    nextInput = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`);
+                } else if (hasDown && !hasRight) {
+                    currentDirection = 'vertical';
+                    nextInput = $(`.grid-cell input[data-row="${currentRow + 1}"][data-col="${currentCol}"]`);
+                } else if (hasRight) {
+                    currentDirection = 'horizontal';
+                    nextInput = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`);
+                }
+            }
+            
+            // Se não encontrou adjacente direto, terminou a palavra atual
+            if (!nextInput || !nextInput.length) {
+                // Resetar direção para a próxima palavra
+                currentDirection = null;
+                
+                // Procurar próxima palavra incompleta
+                nextInput = findAnyIncompleteWord();
+            }
+            
+            return nextInput;
+        }
+
+        function findNextWordStart(currentRow, currentCol, direction) {
+            // Esta função não é mais usada - removida da lógica
+            return null;
+        }
+
+        function isWordComplete(startRow, startCol, direction) {
+            // Verificar se todas as células da palavra estão preenchidas
+            let row = startRow;
+            let col = startCol;
+            
+            while (true) {
+                const cell = $(`.grid-cell input[data-row="${row}"][data-col="${col}"]`);
+                if (!cell.length) break;
+                
+                if (!cell.val()) {
+                    return false; // Encontrou célula vazia
+                }
+                
+                if (direction === 'horizontal') {
+                    col++;
+                } else {
+                    row++;
+                }
+            }
+            
+            return true;
+        }
+
+        function findAnyIncompleteWord() {
+            // Procurar qualquer palavra que não esteja totalmente preenchida
+            const allInputs = $('.grid-cell input').toArray();
+            
+            // Embaralhar para escolher aleatoriamente
+            const shuffled = allInputs.sort(() => Math.random() - 0.5);
+            
+            for (let input of shuffled) {
+                if (!$(input).val()) {
+                    const row = parseInt($(input).data('row'));
+                    const col = parseInt($(input).data('col'));
+                    
+                    // IMPORTANTE: Resetar direção antes de encontrar próxima palavra
+                    currentDirection = null;
+                    
+                    // Encontrar início da palavra que contém esta célula vazia
+                    const wordStart = findWordStart(row, col);
+                    
+                    // currentDirection já foi definida por findWordStart
+                    return wordStart;
+                }
+            }
+            
+            return null;
+        }
+
+        function findWordStart(row, col) {
+            // Procurar início da palavra que contém esta posição
+            // e detectar automaticamente a direção baseado no número da célula
+            
+            // Verificar se esta célula tem número (é início de palavra)
+            const currentCell = $(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
+            const hasNumber = currentCell.find('.cell-number').length > 0;
+            
+            if (hasNumber) {
+                // Esta é uma célula de início de palavra
+                // Verificar qual direção a palavra segue
+                const hasRight = $(`.grid-cell input[data-row="${row}"][data-col="${col + 1}"]`).length > 0;
+                const hasDown = $(`.grid-cell input[data-row="${row + 1}"][data-col="${col}"]`).length > 0;
+                
+                if (hasRight && !hasDown) {
+                    currentDirection = 'horizontal';
+                } else if (hasDown && !hasRight) {
+                    currentDirection = 'vertical';
+                } else if (hasRight && hasDown) {
+                    // Ambas direções - priorizar horizontal
+                    currentDirection = 'horizontal';
+                }
+                
+                return $(`.grid-cell input[data-row="${row}"][data-col="${col}"]`);
+            }
+            
+            // Não é início de palavra - procurar o início
+            
+            // Tentar encontrar início da palavra horizontal
+            let startColH = col;
+            while (true) {
+                const prevCell = $(`.grid-cell input[data-row="${row}"][data-col="${startColH - 1}"]`);
+                if (!prevCell.length) break;
+                startColH--;
+            }
+            
+            // Tentar encontrar início da palavra vertical
+            let startRowV = row;
+            while (true) {
+                const prevCell = $(`.grid-cell input[data-row="${startRowV - 1}"][data-col="${col}"]`);
+                if (!prevCell.length) break;
+                startRowV--;
+            }
+            
+            // Verificar qual palavra existe de fato
+            const horizontalStart = $(`.grid-cell input[data-row="${row}"][data-col="${startColH}"]`);
+            const verticalStart = $(`.grid-cell input[data-row="${startRowV}"][data-col="${col}"]`);
+            
+            // Contar tamanho de cada palavra
+            let horizontalLength = 0;
+            let tempCol = startColH;
+            while ($(`.grid-cell input[data-row="${row}"][data-col="${tempCol}"]`).length) {
+                horizontalLength++;
+                tempCol++;
+            }
+            
+            let verticalLength = 0;
+            let tempRow = startRowV;
+            while ($(`.grid-cell input[data-row="${tempRow}"][data-col="${col}"]`).length) {
+                verticalLength++;
+                tempRow++;
+            }
+            
+            // Verificar qual início tem número (prioridade)
+            const horizontalStartCell = $(`.grid-cell[data-row="${row}"][data-col="${startColH}"]`);
+            const verticalStartCell = $(`.grid-cell[data-row="${startRowV}"][data-col="${col}"]`);
+            const horizontalHasNumber = horizontalStartCell.find('.cell-number').length > 0;
+            const verticalHasNumber = verticalStartCell.find('.cell-number').length > 0;
+            
+            // Se ambas existem (intersecção)
+            if (horizontalLength > 1 && verticalLength > 1) {
+                // Priorizar a que tem número E está incompleta
+                const horizontalIncomplete = !isWordComplete(row, startColH, 'horizontal');
+                const verticalIncomplete = !isWordComplete(startRowV, col, 'vertical');
+                
+                if (horizontalHasNumber && horizontalIncomplete) {
+                    currentDirection = 'horizontal';
+                    return horizontalStart;
+                } else if (verticalHasNumber && verticalIncomplete) {
+                    currentDirection = 'vertical';
+                    return verticalStart;
+                } else if (horizontalIncomplete) {
+                    currentDirection = 'horizontal';
+                    return horizontalStart;
+                } else if (verticalIncomplete) {
+                    currentDirection = 'vertical';
+                    return verticalStart;
+                } else {
+                    // Ambas completas - preferir horizontal
+                    currentDirection = 'horizontal';
+                    return horizontalStart;
+                }
+            } else if (horizontalLength > 1) {
+                currentDirection = 'horizontal';
+                return horizontalStart;
+            } else if (verticalLength > 1) {
+                currentDirection = 'vertical';
+                return verticalStart;
+            }
+            
+            // Fallback - resetar direção
+            currentDirection = null;
+            return null;
+        }
+
+        function checkAnswersAutomatically() {
+            let allFilled = true;
+            let allCorrect = true;
+
+            $('.grid-cell.filled').each(function() {
+                const input = $(this).find('input');
+                const userAnswer = input.val().toUpperCase();
+
+                if (!userAnswer) {
+                    allFilled = false;
+                    return false;
+                }
+            });
+
+            if (!allFilled) {
+                return; // Ainda não terminou de preencher
+            }
+
+            // Todos preenchidos, verificar se estão corretos
+            $('.grid-cell.filled').each(function() {
+                const input = $(this).find('input');
+                const answer = $(this).data('answer');
+                const userAnswer = input.val().toUpperCase();
+
+                if (userAnswer !== answer) {
+                    allCorrect = false;
+                    return false;
+                }
+            });
+
+            if (allCorrect) {
+                showFeedback('success', '🎉 Parabéns! 🎉', 'Você completou a cruzadinha corretamente!');
+                launchConfetti();
+            } else {
+                showFeedback('error', '❌ Ops!', 'Algumas respostas estão incorretas. Continue tentando!');
+            }
+        }
+
+        function showFeedback(type, title, text) {
+            const $feedback = $('#feedbackMessage');
+            $feedback.removeClass('success error');
+            $feedback.addClass(type);
+            $('#feedbackTitle').text(title);
+            $('#feedbackText').text(text);
+            
+            // Mostrar/ocultar botão de novo jogo
+            if (type === 'success') {
+                $('#btnNewGame').show();
+            } else {
+                $('#btnNewGame').hide();
+            }
+            
+            $feedback.fadeIn();
+            
+            if (type === 'error') {
+                setTimeout(() => {
+                    $feedback.fadeOut();
+                }, 3000);
+            }
+        }
+
+        // Botão de Novo Jogo
+        $(document).on('click', '#btnNewGame', function() {
+            // Limpar feedback
+            $('#feedbackMessage').fadeOut();
+            
+            // Scroll para o topo e expandir painel de configuração
+            $('html, body').animate({
+                scrollTop: 0
+            }, 500);
+            
+            $('#configPanel').removeClass('collapsed');
+            $('#toggleConfigBtn').html('<span>▲</span><span>Recolher</span>');
+            
+            // Limpar inputs da cruzadinha (apenas os não-readonly)
+            $('.grid-cell input:not([readonly])').val('');
+            
+            // Focar no textarea
+            setTimeout(() => {
+                $('#wordsList').focus();
+            }, 600);
+        });
+
+        function launchConfetti() {
+            const colors = ['var(--primary-400)', 'var(--primary-500)', 'var(--primary-600)', '#fbbf24', '#f59e0b', '#22c55e', '#3b82f6'];
+            
+            for (let i = 0; i < 150; i++) {
+                setTimeout(() => {
+                    const size = Math.random() * 15 + 8; // Tamanhos entre 8px e 23px
+                    const startPosition = Math.random() * 100; // Posição horizontal aleatória
+                    const startTop = -(Math.random() * 100 + 50); // Inicia entre -50px e -150px (acima da tela)
+                    
+                    const confetti = $('<div class="confetti"></div>');
+                    confetti.css({
+                        left: startPosition + '%',
+                        top: startTop + 'px',
+                        width: size + 'px',
+                        height: size + 'px',
+                        background: colors[Math.floor(Math.random() * colors.length)],
+                        animationDelay: Math.random() * 0.5 + 's',
+                        animationDuration: (Math.random() * 3 + 3) + 's'
+                    });
+                    $('body').append(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 6000);
+                }, i * 20);
+            }
+        }
+    </script>
+</body>
+</html>
