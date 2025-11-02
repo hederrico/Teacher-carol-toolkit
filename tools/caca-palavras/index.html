@@ -459,6 +459,30 @@
             user-select: none;
         }
 
+        .grid-label {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            font-weight: var(--font-weight-semibold);
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid var(--primary-300);
+            padding: 2px 4px;
+            font-size: var(--font-size-xs);
+        }
+
+        .corner-label {
+            background: var(--primary-50);
+            border: none;
+        }
+
+        .col-label {
+            min-width: 20px;
+        }
+
+        .row-label {
+            min-width: 25px;
+        }
+
         .grid-cell {
             border: 1px solid var(--primary-300);
             text-align: center;
@@ -507,12 +531,12 @@
         .word-item {
             padding: var(--spacing-sm);
             font-size: var(--font-size-sm);
-            color: var(--color-text-primary);
+            color: var(--color-text-secondary);
             background: var(--primary-50);
             border-radius: var(--border-radius-sm);
             text-align: center;
-            font-weight: var(--font-weight-semibold);
-            text-transform: uppercase;
+            font-weight: var(--font-weight-normal);
+            text-transform: capitalize;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -597,6 +621,13 @@
             .grid-cell {
                 border: 1px solid #333;
                 page-break-inside: avoid;
+            }
+
+            .grid-label {
+                border: 1px solid #333;
+                background: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .words-list-section {
@@ -917,8 +948,20 @@
                 const fontSize = Math.max(12, Math.floor(cellSize * 0.5));
 
                 let tableHTML = '<table class="grid-table">';
+                
+                // Linha de cabeçalho com letras (colunas)
+                tableHTML += '<tr>';
+                tableHTML += `<th class="grid-label corner-label"></th>`; // Canto superior esquerdo vazio
+                for (let c = 0; c < size; c++) {
+                    const letter = String.fromCharCode(65 + c); // A, B, C, ...
+                    tableHTML += `<th class="grid-label col-label" style="width: ${cellSize}px;">${letter}</th>`;
+                }
+                tableHTML += '</tr>';
+                
+                // Linhas do grid com números na lateral
                 for (let r = 0; r < size; r++) {
                     tableHTML += '<tr>';
+                    tableHTML += `<th class="grid-label row-label" style="height: ${cellSize}px;">${r + 1}</th>`;
                     for (let c = 0; c < size; c++) {
                         tableHTML += `<td class="grid-cell" style="width: ${cellSize}px; height: ${cellSize}px; font-size: ${fontSize}px;">${grid[r][c]}</td>`;
                     }
@@ -960,7 +1003,8 @@
                 
                 // Adicionar classe de destaque
                 cells.forEach(cell => {
-                    const cellElement = $('.grid-table tr').eq(cell.r).find('td').eq(cell.c);
+                    // +1 na linha para pular o cabeçalho com letras
+                    const cellElement = $('.grid-table tr').eq(cell.r + 1).find('td').eq(cell.c);
                     cellElement.addClass('revealed');
                 });
                 
@@ -970,7 +1014,8 @@
                 // Remover destaque após 3 segundos
                 setTimeout(() => {
                     cells.forEach(cell => {
-                        const cellElement = $('.grid-table tr').eq(cell.r).find('td').eq(cell.c);
+                        // +1 na linha para pular o cabeçalho com letras
+                        const cellElement = $('.grid-table tr').eq(cell.r + 1).find('td').eq(cell.c);
                         cellElement.removeClass('revealed');
                     });
                 }, 3000);
