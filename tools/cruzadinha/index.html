@@ -32,20 +32,50 @@
             background: var(--gradient-surface);
         }
 
+        /* Ajuste do Header para atalho */
+        .header-content {
+            justify-content: space-between !important;
+        }
+
+        /* Dica de Atalho no Header */
+        .keyboard-shortcut-hint {
+            font-size: var(--font-size-xs);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.7;
+            transition: opacity var(--transition-base);
+        }
+
+        .keyboard-shortcut-hint:hover {
+            opacity: 1;
+        }
+
+        .keyboard-shortcut-hint kbd {
+            background: var(--color-border);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--color-text-primary);
+            font-weight: normal;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
         /* Painel de Configuração */
         .config-panel {
             background: var(--color-surface);
             border-radius: var(--border-radius-xl);
-            border: var(--border-width-medium) solid var(--color-border);
             box-shadow: var(--shadow-lg);
-            padding: var(--spacing-2xl);
-            margin-bottom: var(--spacing-2xl);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
             transition: all var(--transition-base);
             overflow: hidden;
         }
 
         .config-panel.collapsed {
-            padding: var(--spacing-lg);
+            padding: var(--spacing-md);
+            box-shadow: var(--shadow-md);
         }
 
         .config-panel.collapsed .config-content {
@@ -56,7 +86,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
             position: relative;
         }
 
@@ -93,27 +123,27 @@
 
         .page-title {
             color: var(--color-primary);
-            font-size: var(--font-size-3xl);
+            font-size: var(--font-size-2xl);
             margin: 0;
             font-weight: var(--font-weight-bold);
             text-align: center;
         }
 
         .config-panel.collapsed .page-title {
-            font-size: var(--font-size-xl);
+            font-size: var(--font-size-lg);
         }
 
         .section-title {
             color: var(--color-primary);
-            font-size: var(--font-size-lg);
+            font-size: var(--font-size-base);
             font-weight: var(--font-weight-semibold);
-            margin: var(--spacing-xl) 0 var(--spacing-md);
-            padding-bottom: var(--spacing-sm);
+            margin: var(--spacing-lg) 0 var(--spacing-sm);
+            padding-bottom: var(--spacing-xs);
             border-bottom: 2px solid var(--primary-200);
         }
 
         .words-section {
-            margin-bottom: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
         }
 
         .input-header {
@@ -159,12 +189,12 @@
         textarea {
             resize: vertical;
             font-family: 'Consolas', 'Monaco', monospace;
-            min-height: 200px;
-            line-height: 1.8;
-            padding: var(--spacing-md);
+            min-height: 150px;
+            line-height: 1.6;
+            padding: var(--spacing-sm);
             border: var(--border-width-medium) solid var(--color-border);
             border-radius: var(--border-radius-md);
-            font-size: var(--font-size-base);
+            font-size: var(--font-size-sm);
             transition: all var(--transition-base);
             color: var(--color-text-primary);
             background-color: white;
@@ -182,7 +212,7 @@
         .button-group {
             display: flex;
             gap: var(--spacing-md);
-            margin-top: var(--spacing-xl);
+            margin-top: var(--spacing-md);
         }
 
         .btn-generate {
@@ -254,14 +284,14 @@
             background: var(--color-surface);
             border-radius: var(--border-radius-xl);
             box-shadow: var(--shadow-lg);
-            padding: var(--spacing-2xl);
-            margin-bottom: var(--spacing-2xl);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
         }
 
         .crossword-wrapper {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: var(--spacing-2xl);
+            gap: var(--spacing-lg);
         }
 
         /* Grid da Cruzadinha */
@@ -424,31 +454,83 @@
             }
         }
 
-        /* Mensagem de Feedback */
-        .feedback-message {
+        /* Modal de Feedback */
+        .feedback-modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background: rgba(0, 0, 0, 0.6); */
+            backdrop-filter: blur(2px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .feedback-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .feedback-message {
             background: white;
-            padding: var(--spacing-lg);
-            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-2xl);
+            border-radius: var(--border-radius-xl);
             text-align: center;
-            margin-bottom: var(--spacing-xl);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-2xl);
             border: 3px solid;
+            max-width: 500px;
+            width: 90%;
+            animation: modalSlideUp 0.4s ease-out;
+            position: relative;
         }
 
         .feedback-message.success {
             border-color: var(--primary-500);
-            background: var(--primary-50);
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 100%);
         }
 
         .feedback-message.error {
             border-color: #f59e0b;
-            background: #fef3c7;
+            background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
         }
 
         .feedback-message h3 {
-            margin: 0 0 var(--spacing-sm) 0;
-            font-size: var(--font-size-xl);
+            margin: 0 0 var(--spacing-md) 0;
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            animation: bounce 0.6s ease-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         .feedback-message.success h3 {
@@ -460,28 +542,56 @@
         }
 
         .feedback-message p {
-            margin: 0;
-            color: var(--color-text-secondary);
+            margin: 0 0 var(--spacing-xl) 0;
+            color: var(--color-text-primary);
+            font-size: var(--font-size-lg);
+            line-height: 1.6;
         }
 
         .btn-new-game {
             background: var(--gradient-primary);
             color: white;
             border: none;
-            padding: var(--spacing-sm) var(--spacing-xl);
+            padding: var(--spacing-md) var(--spacing-2xl);
             border-radius: var(--border-radius-md);
             font-size: var(--font-size-base);
             font-weight: var(--font-weight-semibold);
             cursor: pointer;
             transition: all var(--transition-base);
             font-family: var(--font-family-base);
-            margin-top: var(--spacing-md);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-new-game:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
             filter: brightness(1.1);
+        }
+
+        .btn-close-modal {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            background: transparent;
+            border: none;
+            font-size: var(--font-size-2xl);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius-full);
+            transition: all var(--transition-base);
+        }
+
+        .btn-close-modal:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--color-text-primary);
         }
 
         /* Estilos de Impressão */
@@ -492,7 +602,7 @@
                 background: white;
             }
 
-            .header, .footer, .config-panel, .btn-print, .btn-check, .feedback-message {
+            .header, .footer, .config-panel, .btn-print, .btn-check, .feedback-modal {
                 display: none !important;
             }
 
@@ -565,13 +675,16 @@
                     <span class="site-subtitle">Gerador de Cruzadinha</span>
                 </div>
             </a>
+            <div class="keyboard-shortcut-hint">
+                Atalho: <kbd>Shift</kbd> + <kbd>Enter</kbd>
+            </div>
         </div>
     </header>
 
     <!-- ============================================
          CONTEÚDO PRINCIPAL
          ============================================ -->
-    <main style="flex: 1; padding: var(--spacing-2xl) 0;">
+    <main style="flex: 1; padding: var(--spacing-md) 0;">
         <div class="container">
             <div class="config-panel" id="configPanel">
                 <div class="config-header">
@@ -618,14 +731,21 @@
 
             <button class="btn-print" id="btnPrint">🖨️ Imprimir</button>
 
-            <!-- Container da Cruzadinha Gerada -->
-            <div class="crossword-container" id="crosswordContainer">
+            <!-- Modal de Feedback -->
+            <div class="feedback-modal" id="feedbackModal">
                 <div class="feedback-message" id="feedbackMessage">
+                    <button class="btn-close-modal" id="btnCloseModal" aria-label="Fechar">×</button>
                     <h3 id="feedbackTitle"></h3>
                     <p id="feedbackText"></p>
-                    <button class="btn-new-game" id="btnNewGame" style="display: none;">🎲 Gerar Novo Jogo</button>
+                    <button class="btn-new-game" id="btnNewGame" style="display: none;">
+                        <span>🎲</span>
+                        <span>Gerar Novo Jogo</span>
+                    </button>
                 </div>
-                
+            </div>
+
+            <!-- Container da Cruzadinha Gerada -->
+            <div class="crossword-container" id="crosswordContainer">
                 <h2 style="text-align: center; color: var(--color-primary); margin-bottom: var(--spacing-xl);">
                     Palavra Cruzada
                 </h2>
@@ -751,6 +871,17 @@
             } catch (error) {
                 showAlert('Erro ao gerar cruzadinha. Tente com palavras diferentes.');
                 console.error(error);
+            }
+        });
+
+        // Atalho de teclado global: Shift + Enter para gerar cruzadinha
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Enter' && e.shiftKey) {
+                // Verificar se não está em um input da cruzadinha
+                if (!$(e.target).closest('.grid-cell').length) {
+                    e.preventDefault();
+                    $('#btnGenerate').click();
+                }
             }
         });
 
@@ -987,16 +1118,8 @@
                 }
             }
 
-            // Verificar espaço antes e depois da palavra
-            if (direction === 'across') {
-                if (grid[row][col - 1] !== null) return false;
-                if (grid[row][col + word.length] !== null) return false;
-            } else {
-                if (grid[row - 1][col] !== null) return false;
-                if (grid[row + word.length][col] !== null) return false;
-            }
-
             let intersectionCount = 0;
+            let hasIntersection = false;
 
             // Verificar cada posição da palavra
             for (let i = 0; i < word.length; i++) {
@@ -1011,8 +1134,34 @@
                         return false;
                     }
                     intersectionCount++;
+                    hasIntersection = true;
+                    
+                    // CORREÇÃO: Mesmo em interseções, verificar adjacências perpendiculares
+                    // para garantir que não há letras formando palavras inválidas
+                    if (direction === 'across') {
+                        // Palavra horizontal - verificar acima e abaixo
+                        // Mas permitir se for parte de outra palavra já colocada
+                        const cellAbove = grid[r - 1][c];
+                        const cellBelow = grid[r + 1][c];
+                        
+                        // Se há letra acima OU abaixo, deve haver nos dois lados (palavra cruzada)
+                        if ((cellAbove !== null) !== (cellBelow !== null)) {
+                            // Apenas um lado tem letra - isso formaria uma palavra incompleta
+                            return false;
+                        }
+                    } else {
+                        // Palavra vertical - verificar esquerda e direita
+                        const cellLeft = grid[r][c - 1];
+                        const cellRight = grid[r][c + 1];
+                        
+                        // Se há letra à esquerda OU à direita, deve haver nos dois lados (palavra cruzada)
+                        if ((cellLeft !== null) !== (cellRight !== null)) {
+                            // Apenas um lado tem letra - isso formaria uma palavra incompleta
+                            return false;
+                        }
+                    }
                 } else {
-                    // Célula vazia - verificar apenas adjacências perpendiculares
+                    // Célula vazia - verificar adjacências perpendiculares
                     if (direction === 'across') {
                         // Palavra horizontal - verificar acima e abaixo
                         if (grid[r - 1][c] !== null || grid[r + 1][c] !== null) {
@@ -1024,6 +1173,28 @@
                             return false;
                         }
                     }
+                }
+            }
+
+            // Verificar espaço antes e depois da palavra
+            // CORREÇÃO: Só verificar se não houver intersecção nas extremidades
+            if (direction === 'across') {
+                // Verificar antes (só se a primeira letra não for intersecção)
+                if (!grid[row][col] && grid[row][col - 1] !== null) {
+                    return false;
+                }
+                // Verificar depois (só se a última letra não for intersecção)
+                if (!grid[row][col + word.length - 1] && grid[row][col + word.length] !== null) {
+                    return false;
+                }
+            } else {
+                // Verificar antes (só se a primeira letra não for intersecção)
+                if (!grid[row][col] && grid[row - 1][col] !== null) {
+                    return false;
+                }
+                // Verificar depois (só se a última letra não for intersecção)
+                if (!grid[row + word.length - 1][col] && grid[row + word.length][col] !== null) {
+                    return false;
                 }
             }
 
@@ -1189,9 +1360,10 @@
 
         let currentDirection = null; // 'horizontal' ou 'vertical'
         let lastFocusedCell = null;
+        let isSequentialNavigation = false; // Flag para detectar navegação sequencial
 
         function setupKeyboardNavigation() {
-            $('.grid-cell input').on('focus', function() {
+            $('.grid-cell input').on('focus', function(e) {
                 const currentRow = parseInt($(this).data('row'));
                 const currentCol = parseInt($(this).data('col'));
                 
@@ -1199,8 +1371,10 @@
                 const currentCell = $(`.grid-cell[data-row="${currentRow}"][data-col="${currentCol}"]`);
                 const hasNumber = currentCell.find('.cell-number').length > 0;
                 
-                if (hasNumber) {
-                    // É início de palavra - redefinir direção baseado em adjacentes
+                // CORREÇÃO: Só mudar direção se NÃO for navegação sequencial
+                if (hasNumber && !isSequentialNavigation) {
+                    // É início de palavra E usuário clicou ou foi redirecionado
+                    // Redefinir direção baseado em adjacentes
                     const hasRight = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`).length > 0;
                     const hasDown = $(`.grid-cell input[data-row="${currentRow + 1}"][data-col="${currentCol}"]`).length > 0;
                     
@@ -1222,8 +1396,8 @@
                             currentDirection = 'horizontal';
                         }
                     }
-                } else if (lastFocusedCell) {
-                    // Não é início - detectar direção pelo movimento
+                } else if (lastFocusedCell && !isSequentialNavigation) {
+                    // Não é início - detectar direção pelo movimento (só se não for sequencial)
                     const lastRow = lastFocusedCell.row;
                     const lastCol = lastFocusedCell.col;
                     
@@ -1233,6 +1407,9 @@
                         currentDirection = 'vertical';
                     }
                 }
+                
+                // Resetar flag de navegação sequencial após processar
+                isSequentialNavigation = false;
                 
                 lastFocusedCell = { row: currentRow, col: currentCol };
             });
@@ -1284,6 +1461,7 @@
                     case 'ArrowRight':
                         e.preventDefault();
                         currentDirection = 'horizontal';
+                        isSequentialNavigation = false; // Navegação manual por seta
                         nextInput = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`);
                         if (nextInput.length) {
                             nextInput.focus();
@@ -1292,6 +1470,7 @@
                     case 'ArrowLeft':
                         e.preventDefault();
                         currentDirection = 'horizontal';
+                        isSequentialNavigation = false; // Navegação manual por seta
                         nextInput = $(`.grid-cell input[data-row="${currentRow}"][data-col="${currentCol - 1}"]`);
                         if (nextInput.length) {
                             nextInput.focus();
@@ -1300,6 +1479,7 @@
                     case 'ArrowDown':
                         e.preventDefault();
                         currentDirection = 'vertical';
+                        isSequentialNavigation = false; // Navegação manual por seta
                         nextInput = $(`.grid-cell input[data-row="${currentRow + 1}"][data-col="${currentCol}"]`);
                         if (nextInput.length) {
                             nextInput.focus();
@@ -1308,6 +1488,7 @@
                     case 'ArrowUp':
                         e.preventDefault();
                         currentDirection = 'vertical';
+                        isSequentialNavigation = false; // Navegação manual por seta
                         nextInput = $(`.grid-cell input[data-row="${currentRow - 1}"][data-col="${currentCol}"]`);
                         if (nextInput.length) {
                             nextInput.focus();
@@ -1316,6 +1497,7 @@
                     case 'Backspace':
                         if ($(this).val() === '') {
                             e.preventDefault();
+                            isSequentialNavigation = true; // Voltar é navegação sequencial
                             // Voltar na direção atual ou horizontal por padrão
                             if (currentDirection === 'vertical') {
                                 nextInput = $(`.grid-cell input[data-row="${currentRow - 1}"][data-col="${currentCol}"]`);
@@ -1358,14 +1540,19 @@
                 }
             }
             
-            // Se não encontrou adjacente direto, terminou a palavra atual
-            if (!nextInput || !nextInput.length) {
-                // Resetar direção para a próxima palavra
-                currentDirection = null;
-                
-                // Procurar próxima palavra incompleta
-                nextInput = findAnyIncompleteWord();
+            // Se encontrou adjacente direto, marcar como navegação sequencial
+            if (nextInput && nextInput.length) {
+                isSequentialNavigation = true;
+                return nextInput;
             }
+            
+            // Se não encontrou adjacente direto, terminou a palavra atual
+            // Resetar direção para a próxima palavra
+            currentDirection = null;
+            isSequentialNavigation = false; // NÃO é navegação sequencial ao pular para nova palavra
+            
+            // Procurar próxima palavra incompleta
+            nextInput = findAnyIncompleteWord();
             
             return nextInput;
         }
@@ -1568,7 +1755,9 @@
         }
 
         function showFeedback(type, title, text) {
+            const $modal = $('#feedbackModal');
             const $feedback = $('#feedbackMessage');
+            
             $feedback.removeClass('success error');
             $feedback.addClass(type);
             $('#feedbackTitle').text(title);
@@ -1581,35 +1770,74 @@
                 $('#btnNewGame').hide();
             }
             
-            $feedback.fadeIn();
+            // Mostrar modal
+            $modal.addClass('show');
             
+            // Auto-fechar apenas para erros
             if (type === 'error') {
                 setTimeout(() => {
-                    $feedback.fadeOut();
+                    $modal.removeClass('show');
                 }, 3000);
             }
         }
 
-        // Botão de Novo Jogo
+        // Fechar modal
+        $(document).on('click', '#btnCloseModal, .feedback-modal', function(e) {
+            if (e.target.id === 'btnCloseModal' || e.target.classList.contains('feedback-modal')) {
+                $('#feedbackModal').removeClass('show');
+            }
+        });
+
+        // Prevenir fechar ao clicar dentro do feedback
+        $(document).on('click', '.feedback-message', function(e) {
+            e.stopPropagation();
+        });
+
+        // Botão de Novo Jogo - agora reutiliza os dados existentes
         $(document).on('click', '#btnNewGame', function() {
-            // Limpar feedback
-            $('#feedbackMessage').fadeOut();
+            // Fechar modal
+            $('#feedbackModal').removeClass('show');
             
-            // Scroll para o topo e expandir painel de configuração
-            $('html, body').animate({
-                scrollTop: 0
-            }, 500);
+            // Limpar confete se houver
+            $('.confetti').remove();
             
-            $('#configPanel').removeClass('collapsed');
-            $('#toggleConfigBtn').html('<span>▲</span><span>Recolher</span>');
+            // Regenerar a cruzadinha com as mesmas palavras
+            const wordsList = $('#wordsList').val().trim();
             
-            // Limpar inputs da cruzadinha (apenas os não-readonly)
-            $('.grid-cell input:not([readonly])').val('');
-            
-            // Focar no textarea
-            setTimeout(() => {
-                $('#wordsList').focus();
-            }, 600);
+            if (wordsList) {
+                // Parse da lista de palavras novamente
+                const lines = wordsList.split('\n').filter(line => line.trim());
+                const words = [];
+                
+                for (const line of lines) {
+                    const separatorIndex = line.indexOf(':') !== -1 ? line.indexOf(':') : line.indexOf('|');
+                    
+                    if (separatorIndex !== -1) {
+                        const word = line.substring(0, separatorIndex).trim().toUpperCase().replace(/[^A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/g, '');
+                        const clue = line.substring(separatorIndex + 1).trim();
+                        
+                        if (word.length > 1 && clue) {
+                            words.push({ word, clue });
+                        }
+                    }
+                }
+                
+                if (words.length > 0) {
+                    try {
+                        generateCrossword(words);
+                        
+                        // Scroll suave para a cruzadinha
+                        setTimeout(() => {
+                            $('html, body').animate({
+                                scrollTop: $('#crosswordContainer').offset().top - 100
+                            }, 500);
+                        }, 300);
+                    } catch (error) {
+                        console.error('Erro ao gerar nova cruzadinha:', error);
+                        showAlert('Erro ao gerar nova cruzadinha. Tente novamente.');
+                    }
+                }
+            }
         });
 
         function launchConfetti() {
