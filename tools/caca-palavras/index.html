@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Gerador de Cartelas de Bingo - Teacher Carol's Toolkit">
+    <meta name="description" content="Gerador de Caça-Palavras - Teacher Carol's Toolkit">
     <meta name="author" content="Caroline Castro">
     
-    <title>Gerador de Bingo | Teacher Carol's Toolkit</title>
+    <title>Gerador de Caça-Palavras | Teacher Carol's Toolkit</title>
     
-    <!-- Google Fonts - Lexend -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,24 +15,13 @@
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
-    <!-- CSS Principal -->
     <link rel="stylesheet" href="../../css/styles.css">
-    
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="../../images/logo.png">
-    
-    <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    
-    <!-- Select2 JS -->
+
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
-    <!-- CSS Específico do Bingo -->
     <style>
-        /* ============================================
-           ESTILOS ESPECÍFICOS DA FERRAMENTA BINGO
-           ============================================ */
-        
         body {
             background: var(--gradient-surface);
         }
@@ -109,7 +97,7 @@
             border-radius: var(--border-radius-sm);
             cursor: pointer;
             font-size: var(--font-size-xs);
-            font-weight: var(--font-weight-semibold);
+            font-weight: var(--font-weight-medium);
             transition: all var(--transition-base);
             display: inline-flex;
             align-items: center;
@@ -309,6 +297,7 @@
             font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
             background-color: white;
+            transition: all var(--transition-base);
         }
 
         .select2-container--default .select2-results__option--highlighted[aria-selected] {
@@ -324,6 +313,16 @@
         .select2-container--default .select2-results__option--highlighted[aria-selected=true] {
             background-color: var(--primary-200) !important;
             color: var(--primary-800) !important;
+        }
+
+        /* Estilização adicional para garantir que o dropdown apareça corretamente */
+        .select2-dropdown {
+            border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+        }
+
+        .select2-results__options {
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .select2-container {
@@ -369,11 +368,11 @@
         }
 
         .btn-generate {
+            flex: 1;
             background: var(--gradient-primary);
             color: white;
-            flex: 1;
-            padding: var(--spacing-md) var(--spacing-xl);
             border: none;
+            padding: var(--spacing-md) var(--spacing-xl);
             border-radius: var(--border-radius-md);
             font-size: var(--font-size-base);
             font-weight: var(--font-weight-semibold);
@@ -431,158 +430,144 @@
             margin: 0;
         }
 
-        /* Cartelas de Bingo */
-        .cards-container {
+        /* Container do Caça-Palavras */
+        .wordsearch-container {
             display: none;
-        }
-
-        /* Visualização em escala A4 */
-        .page-break {
             background: var(--color-surface);
-            margin-bottom: var(--spacing-2xl);
             border-radius: var(--border-radius-xl);
-            box-shadow: var(--shadow-md);
-            
-            /* Proporções A4: 210mm x 297mm (1:1.414) */
-            aspect-ratio: 210 / 297;
-            
-            padding: 5%;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 3%;
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
         }
 
-        .bingo-card {
-            background: white;
-            border: 3px solid var(--primary-500);
-            border-radius: var(--border-radius-lg);
-            padding: 3%;
-            position: relative;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            /* Mantém proporção de meia página A4 horizontal (148.5mm x 210mm) */
-            aspect-ratio: 148.5 / 210;
-            min-height: 0;
-        }
-
-        .card-header {
-            text-align: center;
-            margin-bottom: 15px;
-            flex-shrink: 0;
-        }
-
-        .card-header h2 {
-            font-size: clamp(18px, 3vw, 28px);
-            font-weight: var(--font-weight-bold);
-            color: var(--primary-700);
-            margin: 0;
-            letter-spacing: 4px;
-        }
-
-        .bingo-grid {
+        .wordsearch-wrapper {
             display: grid;
-            gap: 8px;
-            flex: 1;
-            min-height: 0;
-            overflow: hidden;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-lg);
         }
 
-        .grid-2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .grid-3 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .grid-4 {
-            grid-template-columns: repeat(4, 1fr);
-        }
-
-        .bingo-cell {
-            border: 2px solid var(--primary-300);
-            border-radius: var(--border-radius-md);
-            padding: 8px;
-            background: var(--primary-50);
+        /* Grid do Caça-Palavras */
+        .wordsearch-grid {
             display: flex;
-            flex-direction: column;
-            min-height: 0;
-            overflow: hidden;
-        }
-
-        .cell-word {
-            font-size: clamp(14px, 2vw, 18px);
-            font-weight: var(--font-weight-semibold);
-            color: var(--primary-700);
-            text-align: center;
-            margin-bottom: 6px;
-            line-height: 1.2;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .cell-drawing {
-            flex: 1;
-            border: 1px dashed var(--primary-300);
-            border-radius: var(--border-radius-sm);
-            background: white;
-            min-height: 0;
-        }
-
-        .bingo-grid:not(.grid-4) .cell-drawing {
-            min-height: 0;
-        }
-
-        /* Células apenas com texto (sem espaço para desenho) */
-        .bingo-cell-text-only {
-            min-height: auto;
             justify-content: center;
-            align-items: center;
-            padding: 12px;
+            align-items: flex-start;
         }
 
-        .cell-word-only {
-            font-size: clamp(16px, 2.5vw, 20px);
-            font-weight: var(--font-weight-semibold);
-            color: var(--primary-700);
+        .grid-table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            user-select: none;
+        }
+
+        .grid-cell {
+            border: 1px solid var(--primary-300);
             text-align: center;
-            line-height: 1.3;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        /* Ajustes de tamanho para grades menores */
-        .grid-2 .cell-word-only {
-            font-size: clamp(18px, 3vw, 24px);
-        }
-
-        .grid-4 .cell-word-only {
-            font-size: clamp(12px, 2vw, 16px);
-        }
-
-        .card-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--primary-600);
-            color: white;
-            padding: 4px 10px;
-            border-radius: var(--border-radius-md);
-            font-size: 12px;
+            vertical-align: middle;
             font-weight: var(--font-weight-bold);
+            color: var(--primary-700);
+            background: white;
+            position: relative;
+            box-sizing: border-box;
+            font-family: var(--font-family-base);
+            cursor: default;
         }
 
-        .card-footer {
-            position: absolute;
-            bottom: 1px;
-            left: 10px;
-            color: var(--color-text-secondary);
-            font-size: 10px;
-            opacity: 0.9;
+        .grid-cell.found {
+            background: var(--primary-200);
+            color: var(--primary-900);
+        }
+
+        /* Lista de Palavras */
+        .words-list-section {
+            background: white;
+            border: 2px solid var(--primary-200);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .words-list-title {
+            color: var(--color-primary);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--primary-200);
+            text-align: center;
+        }
+
+        .words-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--spacing-sm);
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .word-item {
+            padding: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-primary);
+            background: var(--primary-50);
+            border-radius: var(--border-radius-sm);
+            text-align: center;
             font-weight: var(--font-weight-semibold);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-xs);
+        }
+
+        .word-text {
+            flex: 1;
+        }
+
+        .btn-reveal {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+            padding: var(--spacing-xs);
+            opacity: 0.6;
+            transition: all var(--transition-base);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            vertical-align: middle;
+        }
+
+        .btn-reveal:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .word-item.revealed {
+            background: var(--primary-200);
+            color: var(--primary-900);
+        }
+
+        .word-item.found {
+            background: var(--primary-200);
+            color: var(--primary-900);
+            text-decoration: line-through;
+        }
+
+        /* Células reveladas */
+        .grid-cell.revealed {
+            background: var(--primary-400) !important;
+            color: white !important;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
         }
 
         /* Estilos de Impressão */
@@ -593,69 +578,39 @@
                 background: white;
             }
 
-            .header, .footer, .config-panel, .btn-print {
+            .header, .footer, .config-panel, .btn-print, .btn-reveal {
                 display: none !important;
             }
 
-            .cards-container {
+            .wordsearch-container {
                 display: block !important;
+                box-shadow: none;
+                padding: 20mm;
             }
 
-            .page-break {
-                page-break-after: always;
-                height: 297mm;
-                width: 210mm;
-                padding: 10mm;
-                box-sizing: border-box;
-                margin: 0;
-                box-shadow: none;
-                border-radius: 0;
+            .wordsearch-wrapper {
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
-                gap: 10mm;
+                gap: 20mm;
             }
 
-            .page-break:last-child {
-                page-break-after: auto;
+            .grid-cell {
+                border: 1px solid #333;
+                page-break-inside: avoid;
             }
 
-            .bingo-card {
-                width: 190mm;
-                height: 133.5mm;
-                padding: 8mm;
-                border-radius: 6px;
-                box-shadow: none;
-                box-sizing: border-box;
-                position: relative;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .grid-2 .bingo-cell {
-                min-height: 60px;
-            }
-
-            .grid-3 .bingo-cell {
-                min-height: 70px;
-            }
-
-            .grid-4 .bingo-cell {
-                min-height: 50px;
-            }
-
-            .grid-4 .cell-word {
-                font-size: 11px;
-            }
-        }
-
-        @media screen {
-            .page-break {
-                min-height: 400px;
+            .words-list-section {
+                page-break-before: always;
             }
         }
 
         /* Responsividade */
+        @media (max-width: 1200px) {
+            .wordsearch-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 768px) {
             .config-panel {
                 padding: var(--spacing-lg);
@@ -668,26 +623,18 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-
-            .button-group {
-                flex-direction: column;
-            }
         }
-    </style>
     </style>
 </head>
 <body>
     
-    <!-- ============================================
-         HEADER
-         ============================================ -->
     <header class="header">
         <div class="header-content">
             <a href="../../index.html" class="logo-container">
                 <img src="../../images/logo.png" alt="Teacher Carol's Toolkit Logo" class="logo-img">
                 <div class="site-title">
                     <h1>Teacher Carol's Toolkit</h1>
-                    <span class="site-subtitle">Gerador de Bingo</span>
+                    <span class="site-subtitle">Gerador de Caça-Palavras</span>
                 </div>
             </a>
             <div class="keyboard-shortcut-hint">
@@ -696,14 +643,11 @@
         </div>
     </header>
 
-    <!-- ============================================
-         CONTEÚDO PRINCIPAL
-         ============================================ -->
     <main style="flex: 1; padding: var(--spacing-md) 0;">
         <div class="container">
             <div class="config-panel" id="configPanel">
                 <div class="config-header">
-                    <h1 class="page-title">Gerador de Cartelas de Bingo</h1>
+                    <h1 class="page-title">Gerador de Caça-Palavras</h1>
                     <button class="toggle-config-btn" id="toggleConfigBtn" style="display: none;">
                         <span>▲</span>
                         <span>Recolher</span>
@@ -712,64 +656,53 @@
 
                 <div class="config-content">
                     <div class="form-grid">
-                <div class="form-group">
-                    <label for="gridSize">Tamanho da Grade</label>
-                    <select id="gridSize">
-                        <option value="2">2x2 (4 espaços)</option>
-                        <option value="3" selected>3x3 (9 espaços)</option>
-                        <option value="4">4x4 (16 espaços)</option>
-                    </select>
-                </div>
+                        <div class="form-group">
+                            <label for="gridSize">Tamanho da Grade</label>
+                            <input type="number" id="gridSize" min="8" max="30" value="10">
+                        </div>
 
-                <div class="form-group">
-                    <label for="numCards">Número de Cartelas</label>
-                    <input type="number" id="numCards" min="1" max="100" value="6">
-                </div>
+                        <div class="form-group">
+                            <label for="allowDiagonal">Palavras na Diagonal</label>
+                            <select id="allowDiagonal">
+                                <option value="true">Permitir diagonal</option>
+                                <option value="false" selected>Apenas horizontal e vertical</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label for="roomId">Identificação (até 4 letras)</label>
-                    <input type="text" id="roomId" maxlength="4" value="1A" style="text-transform: uppercase;">
-                </div>
-
-                <div class="form-group">
-                    <label for="drawingSpace">Espaço para Desenho</label>
-                    <select id="drawingSpace">
-                        <option value="true" selected>Com espaço</option>
-                        <option value="false" selected>Apenas texto</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="input-header">
-                    <label for="options">Lista de Opções (uma por linha)</label>
-                    <button type="button" class="btn-example" id="btnExample">
+                    <div class="form-group">
+                        <div class="input-header">
+                            <label for="wordsList">Lista de Palavras (uma por linha)</label>
+                            <button type="button" class="btn-example" id="btnExample">
                         <span>✨</span>
                         <span>Gerar Exemplo</span>
                     </button>
                 </div>
-                <textarea id="options" placeholder="Apple&#10;Banana&#10;Orange&#10;Grape&#10;Watermelon&#10;Strawberry&#10;Pineapple&#10;Mango&#10;Kiwi" rows="12"></textarea>
+                <textarea id="wordsInput" placeholder="Digite as palavras aqui, uma por linha:&#10;&#10;CACHORRO&#10;GATO&#10;PASSARO&#10;PEIXE&#10;COELHO" rows="12"></textarea>
             </div>
 
             <div class="alert" id="alert">
                 <p class="alert-text" id="alertText"></p>
-            </div>
-
-                    <div class="button-group">
-                        <button class="btn-generate" id="btnGenerate">Gerar Cartelas</button>
+            </div>                    <div class="button-group">
+                        <button class="btn-generate" id="btnGenerate">Gerar Caça-Palavras</button>
                     </div>
                 </div>
             </div>
 
             <button class="btn-print" id="btnPrint">🖨️ Imprimir</button>
 
-            <div class="cards-container" id="cardsContainer"></div>
+            <div class="wordsearch-container" id="wordsearchContainer">
+                <div class="wordsearch-wrapper">
+                    <div class="wordsearch-grid" id="wordsearchGrid"></div>
+                    <div class="words-list-section">
+                        <h3 class="words-list-title">Encontre as Palavras</h3>
+                        <ul class="words-list" id="wordsList"></ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
-    <!-- ============================================
-         FOOTER
-         ============================================ -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -783,98 +716,46 @@
         </div>
     </footer>
 
-    <!-- ============================================
-         JAVASCRIPT
-         ============================================ -->
-
     <script>
         $(document).ready(function() {
-            // Botão de Exemplo
-            $('#btnExample').click(function() {
-                const exampleItems = [
-                    'Apple',
-                    'Banana',
-                    'Orange',
-                    'Grape',
-                    'Watermelon',
-                    'Strawberry',
-                    'Pineapple',
-                    'Mango',
-                    'Kiwi',
-                    'Peach',
-                    'Pear',
-                    'Cherry',
-                    'Lemon',
-                    'Coconut',
-                    'Avocado',
-                    'Blueberry'
-                ];
-                
-                $('#options').val(exampleItems.join('\n'));
-                
-                // Feedback visual
-                $(this).html('<span>✓</span><span>Exemplo Carregado</span>');
-                setTimeout(() => {
-                    $(this).html('<span>✨</span><span>Gerar Exemplo</span>');
-                }, 2000);
+            // Inicializar Select2 no select
+            $('#allowDiagonal').select2({
+                minimumResultsForSearch: Infinity, // Remove a barra de busca
+                width: '100%',
+                dropdownParent: $('#allowDiagonal').parent(),
+                dropdownAutoWidth: true,
+                dropdownCssClass: 'select2-dropdown-custom'
             });
 
-            // Atalho de teclado global: Shift + Enter para gerar cartelas
+            // Botão de Exemplo
+        $('#btnExample').click(function() {
+            const exampleWords = [
+                'CACHORRO',
+                'GATO',
+                'PASSARO',
+                'PEIXE',
+                'COELHO',
+                'TARTARUGA',
+                'HAMSTER',
+                'PAPAGAIO',
+                'BORBOLETA',
+                'FORMIGA'
+            ];
+            
+            $('#wordsInput').val(exampleWords.join('\n'));
+            
+            // Feedback visual
+            $(this).html('<span>✓</span><span>Exemplo Carregado</span>');
+            setTimeout(() => {
+                $(this).html('<span>✨</span><span>Gerar Exemplo</span>');
+            }, 2000);
+        });            // Atalho de teclado global: Shift + Enter para gerar caça-palavras
             $(document).on('keydown', function(e) {
                 if (e.key === 'Enter' && e.shiftKey) {
                     e.preventDefault();
                     $('#btnGenerate').click();
                 }
             });
-
-            // Inicializar Select2 nos selects
-            $('#gridSize').select2({
-                minimumResultsForSearch: Infinity, // Remove a barra de busca
-                width: '100%',
-                dropdownParent: $('#gridSize').parent(),
-                dropdownAutoWidth: true,
-                dropdownCssClass: 'select2-dropdown-custom'
-            });
-
-            $('#drawingSpace').select2({
-                minimumResultsForSearch: Infinity,
-                width: '100%',
-                dropdownParent: $('#drawingSpace').parent(),
-                dropdownAutoWidth: true,
-                dropdownCssClass: 'select2-dropdown-custom'
-            });
-
-            let generatedCards = [];
-
-            function shuffleArray(array) {
-                const shuffled = [...array];
-                for (let i = shuffled.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-                }
-                return shuffled;
-            }
-
-            function generateUniqueCard(items, size, existingCards) {
-                const needed = size * size;
-                if (items.length < needed) return null;
-
-                let attempts = 0;
-                const maxAttempts = 1000;
-
-                while (attempts < maxAttempts) {
-                    const shuffled = shuffleArray(items);
-                    const card = shuffled.slice(0, needed);
-                    const cardKey = card.join('|');
-
-                    if (!existingCards.has(cardKey)) {
-                        existingCards.add(cardKey);
-                        return card;
-                    }
-                    attempts++;
-                }
-                return null;
-            }
 
             function showAlert(message) {
                 $('#alertText').text(message);
@@ -886,127 +767,217 @@
                 $('#alert').fadeOut();
             }
 
+            let placedWords = [];
+
             $('#btnGenerate').click(function() {
                 hideAlert();
                 
                 const gridSize = parseInt($('#gridSize').val());
-                const numCards = parseInt($('#numCards').val());
-                const roomId = $('#roomId').val().toUpperCase();
-                const optionsText = $('#options').val();
-                const hasDrawingSpace = $('#drawingSpace').val() === 'true';
+                const allowDiagonal = $('#allowDiagonal').val() === 'true';
+                const wordsText = $('#wordsInput').val().trim();
 
-                const itemList = optionsText
+                if (!wordsText) {
+                    showAlert('Por favor, insira pelo menos uma palavra');
+                    return;
+                }
+
+                // Parse da lista de palavras
+                const words = wordsText
                     .split('\n')
-                    .map(item => item.trim())
-                    .filter(item => item.length > 0);
+                    .map(word => word.trim().toUpperCase().replace(/[^A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/g, ''))
+                    .filter(word => word.length > 0);
 
-                const needed = gridSize * gridSize;
-
-                if (itemList.length < needed) {
-                    showAlert(`Você precisa de pelo menos ${needed} opções para um bingo ${gridSize}x${gridSize}`);
+                if (words.length === 0) {
+                    showAlert('Nenhuma palavra válida encontrada');
                     return;
                 }
 
-                if (roomId.length > 4) {
-                    showAlert('A identificação deve ter no máximo 4 caracteres');
+                // Verificar se há palavras muito grandes
+                const maxWordLength = words.reduce((max, word) => Math.max(max, word.length), 0);
+                if (maxWordLength > gridSize) {
+                    showAlert(`A maior palavra tem ${maxWordLength} letras, mas a grade tem apenas ${gridSize}x${gridSize}. Aumente o tamanho da grade.`);
                     return;
                 }
 
-                if (!roomId) {
-                    showAlert('Por favor, insira uma identificação');
-                    return;
-                }
-
-                const existingCards = new Set();
-                generatedCards = [];
-
-                for (let i = 0; i < numCards; i++) {
-                    const card = generateUniqueCard(itemList, gridSize, existingCards);
-                    if (!card) {
-                        showAlert(`Aviso: Apenas ${i} cartelas únicas foram geradas. Adicione mais opções para gerar ${numCards} cartelas diferentes.`);
-                        break;
-                    }
-                    generatedCards.push(card);
-                }
-
-                if (generatedCards.length > 0) {
-                    renderCards(generatedCards, gridSize, roomId, hasDrawingSpace);
+                try {
+                    generateWordSearch(words, gridSize, allowDiagonal);
+                    
+                    $('#wordsearchContainer').fadeIn();
                     $('#btnPrint').fadeIn();
                     
                     // Mostrar botão de recolher e recolher painel
                     $('#toggleConfigBtn').fadeIn();
                     $('#configPanel').addClass('collapsed');
-                    $('#toggleConfigBtn').html('<span>Mostrar</span><span>▼</span>');
+                    $('#toggleConfigBtn').html('<span>▼</span><span>Mostrar</span>');
                     
-                    // Scroll suave para as cartelas
+                    // Scroll suave
                     setTimeout(() => {
                         $('html, body').animate({
-                            scrollTop: $('#cardsContainer').offset().top - 100
+                            scrollTop: $('#wordsearchContainer').offset().top - 100
                         }, 500);
                     }, 300);
+                } catch (error) {
+                    showAlert('Erro ao gerar caça-palavras: ' + error.message);
                 }
+            });
+
+            function generateWordSearch(words, size, allowDiagonal) {
+                // Criar grade vazia
+                const grid = Array(size).fill().map(() => Array(size).fill(''));
+                placedWords = [];
+
+                // Ordenar palavras por tamanho (maiores primeiro)
+                const sortedWords = [...words].sort((a, b) => b.length - a.length);
+
+                // Direções possíveis
+                const directions = [
+                    { dr: 0, dc: 1, name: 'horizontal' },      // horizontal (esquerda para direita)
+                    { dr: 1, dc: 0, name: 'vertical' },        // vertical (cima para baixo)
+                    { dr: 0, dc: -1, name: 'horizontal-rev' }, // horizontal reverso
+                    { dr: -1, dc: 0, name: 'vertical-rev' }    // vertical reverso
+                ];
+
+                if (allowDiagonal) {
+                    directions.push(
+                        { dr: 1, dc: 1, name: 'diagonal' },          // diagonal (↘)
+                        { dr: 1, dc: -1, name: 'diagonal-rev' },     // diagonal (↙)
+                        { dr: -1, dc: 1, name: 'diagonal-rev2' },    // diagonal (↗)
+                        { dr: -1, dc: -1, name: 'diagonal-rev3' }    // diagonal (↖)
+                    );
+                }
+
+                // Tentar colocar cada palavra
+                for (const word of sortedWords) {
+                    let placed = false;
+                    let attempts = 0;
+                    const maxAttempts = 100;
+
+                    while (!placed && attempts < maxAttempts) {
+                        // Escolher posição e direção aleatórias
+                        const row = Math.floor(Math.random() * size);
+                        const col = Math.floor(Math.random() * size);
+                        const direction = directions[Math.floor(Math.random() * directions.length)];
+
+                        if (canPlaceWord(grid, word, row, col, direction, size)) {
+                            placeWord(grid, word, row, col, direction);
+                            placedWords.push({ word, row, col, direction });
+                            placed = true;
+                        }
+                        attempts++;
+                    }
+                }
+
+                // Preencher espaços vazios com letras aleatórias
+                fillEmptySpaces(grid);
+
+                // Renderizar
+                renderGrid(grid, size);
+                renderWordsList(placedWords);
+            }
+
+            function canPlaceWord(grid, word, row, col, direction, size) {
+                for (let i = 0; i < word.length; i++) {
+                    const r = row + i * direction.dr;
+                    const c = col + i * direction.dc;
+
+                    // Verificar se está dentro dos limites
+                    if (r < 0 || r >= size || c < 0 || c >= size) {
+                        return false;
+                    }
+
+                    // Verificar se a célula está vazia ou contém a mesma letra
+                    if (grid[r][c] !== '' && grid[r][c] !== word[i]) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            function placeWord(grid, word, row, col, direction) {
+                for (let i = 0; i < word.length; i++) {
+                    const r = row + i * direction.dr;
+                    const c = col + i * direction.dc;
+                    grid[r][c] = word[i];
+                }
+            }
+
+            function fillEmptySpaces(grid) {
+                const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                for (let r = 0; r < grid.length; r++) {
+                    for (let c = 0; c < grid[r].length; c++) {
+                        if (grid[r][c] === '') {
+                            grid[r][c] = letters[Math.floor(Math.random() * letters.length)];
+                        }
+                    }
+                }
+            }
+
+            function renderGrid(grid, size) {
+                const cellSize = Math.min(40, Math.floor(600 / size));
+                const fontSize = Math.max(12, Math.floor(cellSize * 0.5));
+
+                let tableHTML = '<table class="grid-table">';
+                for (let r = 0; r < size; r++) {
+                    tableHTML += '<tr>';
+                    for (let c = 0; c < size; c++) {
+                        tableHTML += `<td class="grid-cell" style="width: ${cellSize}px; height: ${cellSize}px; font-size: ${fontSize}px;">${grid[r][c]}</td>`;
+                    }
+                    tableHTML += '</tr>';
+                }
+                tableHTML += '</table>';
+                $('#wordsearchGrid').html(tableHTML);
+            }
+
+            function renderWordsList(words) {
+                let listHTML = '';
+                words.forEach((wordData, index) => {
+                    listHTML += `
+                        <li class="word-item">
+                            <span class="word-text">${wordData.word}</span>
+                            <button class="btn-reveal" data-index="${index}" title="Revelar palavra">
+                                👁️
+                            </button>
+                        </li>
+                    `;
+                });
+                $('#wordsList').html(listHTML);
+            }
+
+            // Função para revelar palavra
+            $(document).on('click', '.btn-reveal', function() {
+                const index = $(this).data('index');
+                const wordData = placedWords[index];
+                
+                if (!wordData) return;
+                
+                // Destacar células da palavra
+                const cells = [];
+                for (let i = 0; i < wordData.word.length; i++) {
+                    const r = wordData.row + i * wordData.direction.dr;
+                    const c = wordData.col + i * wordData.direction.dc;
+                    cells.push({ r, c });
+                }
+                
+                // Adicionar classe de destaque
+                cells.forEach(cell => {
+                    const cellElement = $('.grid-table tr').eq(cell.r).find('td').eq(cell.c);
+                    cellElement.addClass('revealed');
+                });
+                
+                // Marcar palavra como revelada na lista
+                $(this).closest('.word-item').addClass('revealed');
+                
+                // Remover destaque após 3 segundos
+                setTimeout(() => {
+                    cells.forEach(cell => {
+                        const cellElement = $('.grid-table tr').eq(cell.r).find('td').eq(cell.c);
+                        cellElement.removeClass('revealed');
+                    });
+                }, 3000);
             });
 
             $('#btnPrint').click(function() {
                 window.print();
-            });
-
-            function renderCards(cards, size, roomId, hasDrawingSpace) {
-                const container = $('#cardsContainer');
-                container.empty();
-
-                for (let i = 0; i < cards.length; i += 2) {
-                    const pageDiv = $('<div class="page-break"></div>');
-
-                    [cards[i], cards[i + 1]].forEach(card => {
-                        if (!card) return;
-
-                        const cardDiv = $('<div class="bingo-card"></div>');
-                        
-                        const header = $('<div class="card-header"><h2>BINGO</h2></div>');
-                        cardDiv.append(header);
-
-                        const grid = $(`<div class="bingo-grid grid-${size}"></div>`);
-                        
-                        card.forEach(item => {
-                            let cellHTML;
-                            if (hasDrawingSpace) {
-                                cellHTML = `
-                                    <div class="bingo-cell">
-                                        <div class="cell-word">${item}</div>
-                                        <div class="cell-drawing"></div>
-                                    </div>
-                                `;
-                            } else {
-                                cellHTML = `
-                                    <div class="bingo-cell bingo-cell-text-only">
-                                        <div class="cell-word-only">${item}</div>
-                                    </div>
-                                `;
-                            }
-                            grid.append($(cellHTML));
-                        });
-
-                        cardDiv.append(grid);
-                        
-                        const badge = $(`<div class="card-badge">${roomId}</div>`);
-                        cardDiv.append(badge);
-
-                        const footer = $(`<div class="card-footer">© Caroline Castro</div>`);
-                        cardDiv.append(footer);
-
-                        pageDiv.append(cardDiv);
-                    });
-
-                    container.append(pageDiv);
-                }
-
-                container.fadeIn();
-            }
-
-            // Uppercase input
-            $('#roomId').on('input', function() {
-                $(this).val($(this).val().toUpperCase());
             });
 
             // Toggle do painel de configurações
@@ -1017,9 +988,9 @@
                 panel.toggleClass('collapsed');
                 
                 if (panel.hasClass('collapsed')) {
-                    btn.html('<span>Mostrar</span><span>▼</span>');
+                    btn.html('<span>▼</span><span>Mostrar</span>');
                 } else {
-                    btn.html('<span>Recolher</span><span>▲</span>');
+                    btn.html('<span>▲</span><span>Recolher</span>');
                 }
             });
         });
