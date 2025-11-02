@@ -8,26 +8,14 @@
     
     <title>Gerador de Cruzadinha | Teacher Carol's Toolkit</title>
     
-    <!-- Google Fonts - Lexend -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- CSS Principal -->
     <link rel="stylesheet" href="../../css/styles.css">
-    
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="../../images/logo.png">
-    
-    <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     
-    <!-- CSS Específico da Cruzadinha -->
     <style>
-        /* ============================================
-           ESTILOS ESPECÍFICOS DA FERRAMENTA CRUZADINHA
-           ============================================ */
-        
         body {
             background: var(--gradient-surface);
         }
@@ -400,6 +388,23 @@
             line-height: 1.6;
         }
 
+        .clue-item.clickable-clue {
+            cursor: pointer;
+            padding: var(--spacing-sm) var(--spacing-sm);
+            margin: 0 calc(var(--spacing-sm) * -1);
+            border-radius: var(--border-radius-sm);
+            transition: all var(--transition-base);
+        }
+
+        .clue-item.clickable-clue:hover {
+            background: var(--primary-50);
+            transform: translateX(4px);
+        }
+
+        .clue-item.clickable-clue:active {
+            background: var(--primary-100);
+        }
+
         .clue-number {
             font-weight: var(--font-weight-bold);
             color: var(--primary-600);
@@ -609,10 +614,28 @@
             .crossword-container {
                 display: block !important;
                 box-shadow: none;
+                padding: 0;
+                margin: 0;
             }
 
             .crossword-wrapper {
-                grid-template-columns: 1fr;
+                display: block;
+            }
+
+            /* Primeira página: apenas o grid */
+            .crossword-grid {
+                page-break-after: always;
+                padding: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                padding-top: 40px;
+            }
+
+            /* Segunda página: apenas as dicas */
+            .clues-section {
+                page-break-before: always;
+                padding: 40px;
             }
 
             .grid-cell.blocked::after {
@@ -622,6 +645,17 @@
             .grid-cell input {
                 border: none;
                 background: transparent;
+            }
+
+            /* Ocultar efeitos hover em impressão */
+            .clue-item.clickable-clue:hover {
+                background: transparent;
+                transform: none;
+            }
+
+            /* Ocultar título da página */
+            .crossword-container > h2 {
+                display: none;
             }
         }
 
@@ -663,9 +697,6 @@
 </head>
 <body>
     
-    <!-- ============================================
-         HEADER
-         ============================================ -->
     <header class="header">
         <div class="header-content">
             <a href="../../index.html" class="logo-container">
@@ -681,9 +712,6 @@
         </div>
     </header>
 
-    <!-- ============================================
-         CONTEÚDO PRINCIPAL
-         ============================================ -->
     <main style="flex: 1; padding: var(--spacing-md) 0;">
         <div class="container">
             <div class="config-panel" id="configPanel">
@@ -696,7 +724,6 @@
                 </div>
 
                 <div class="config-content">
-                    <!-- Lista de Palavras e Dicas -->
                     <div class="words-section">
                         <h2 class="section-title">Palavras e Dicas</h2>
                         <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">
@@ -731,7 +758,6 @@
 
             <button class="btn-print" id="btnPrint">🖨️ Imprimir</button>
 
-            <!-- Modal de Feedback -->
             <div class="feedback-modal" id="feedbackModal">
                 <div class="feedback-message" id="feedbackMessage">
                     <button class="btn-close-modal" id="btnCloseModal" aria-label="Fechar">×</button>
@@ -744,29 +770,22 @@
                 </div>
             </div>
 
-            <!-- Container da Cruzadinha Gerada -->
             <div class="crossword-container" id="crosswordContainer">
                 <h2 style="text-align: center; color: var(--color-primary); margin-bottom: var(--spacing-xl);">
                     Palavra Cruzada
                 </h2>
                 <div class="crossword-wrapper">
                     <div>
-                        <div class="crossword-grid" id="crosswordGrid">
-                            <!-- Grid será gerado aqui -->
-                        </div>
+                        <div class="crossword-grid" id="crosswordGrid"></div>
                     </div>
                     <div class="clues-section">
                         <div class="clues-group">
                             <h3 class="clues-title">Horizontais</h3>
-                            <ul class="clue-list" id="acrossClues">
-                                <!-- Dicas horizontais -->
-                            </ul>
+                            <ul class="clue-list" id="acrossClues"></ul>
                         </div>
                         <div class="clues-group">
                             <h3 class="clues-title">Verticais</h3>
-                            <ul class="clue-list" id="downClues">
-                                <!-- Dicas verticais -->
-                            </ul>
+                            <ul class="clue-list" id="downClues"></ul>
                         </div>
                     </div>
                 </div>
@@ -774,9 +793,6 @@
         </div>
     </main>
 
-    <!-- ============================================
-         FOOTER
-         ============================================ -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -790,15 +806,7 @@
         </div>
     </footer>
 
-    <!-- ============================================
-         JAVASCRIPT
-         ============================================ -->
     <script>
-        // ============================================
-        // GERADOR DE CRUZADINHA - ALGORITMO AUTOMÁTICO
-        // ============================================
-
-        // Botão de Gerar Exemplo
         $('#btnExample').click(function() {
             const exampleWords = [
                 'CACHORRO: Animal de estimação que late',
@@ -894,10 +902,6 @@
         function hideAlert() {
             $('#alert').fadeOut();
         }
-
-        // ============================================
-        // ALGORITMO DE GERAÇÃO DE CRUZADINHA
-        // ============================================
 
         function shuffleArray(array) {
             const shuffled = [...array];
@@ -1318,7 +1322,9 @@
             let acrossHTML = '';
             if (acrossClues.length > 0) {
                 acrossClues.forEach(item => {
-                    acrossHTML += `<li class="clue-item"><span class="clue-number">${item.number}.</span>${item.clue}</li>`;
+                    acrossHTML += `<li class="clue-item clickable-clue" data-row="${item.row}" data-col="${item.col}" data-direction="horizontal">
+                        <span class="clue-number">${item.number}.</span>${item.clue}
+                    </li>`;
                 });
             } else {
                 acrossHTML = '<li class="clue-item" style="font-style: italic; color: var(--color-text-secondary);">Nenhuma palavra horizontal</li>';
@@ -1328,13 +1334,45 @@
             let downHTML = '';
             if (downClues.length > 0) {
                 downClues.forEach(item => {
-                    downHTML += `<li class="clue-item"><span class="clue-number">${item.number}.</span>${item.clue}</li>`;
+                    downHTML += `<li class="clue-item clickable-clue" data-row="${item.row}" data-col="${item.col}" data-direction="vertical">
+                        <span class="clue-number">${item.number}.</span>${item.clue}
+                    </li>`;
                 });
             } else {
                 downHTML = '<li class="clue-item" style="font-style: italic; color: var(--color-text-secondary);">Nenhuma palavra vertical</li>';
             }
             $('#downClues').html(downHTML);
         }
+
+        // Evento de clique nas dicas para focar no input correspondente
+        $(document).on('click', '.clickable-clue', function() {
+            const row = $(this).data('row');
+            const col = $(this).data('col');
+            const direction = $(this).data('direction');
+            
+            // Encontrar o input correspondente
+            const input = $(`.grid-cell input[data-row="${row}"][data-col="${col}"]`);
+            
+            if (input.length) {
+                // Definir a direção global
+                currentDirection = direction;
+                isSequentialNavigation = false;
+                
+                // Focar no input
+                input.focus();
+                
+                // Scroll suave até o input
+                const container = $('#crosswordGrid');
+                const offset = input.offset();
+                const containerOffset = container.offset();
+                
+                if (offset && containerOffset) {
+                    $('html, body').animate({
+                        scrollTop: offset.top - 150
+                    }, 300);
+                }
+            }
+        });
 
         $('#btnPrint').click(function() {
             window.print();
@@ -1354,13 +1392,9 @@
             }
         });
 
-        // ============================================
-        // FUNCIONALIDADE DE JOGO INTERATIVO
-        // ============================================
-
-        let currentDirection = null; // 'horizontal' ou 'vertical'
+        let currentDirection = null;
         let lastFocusedCell = null;
-        let isSequentialNavigation = false; // Flag para detectar navegação sequencial
+        let isSequentialNavigation = false;
 
         function setupKeyboardNavigation() {
             $('.grid-cell input').on('focus', function(e) {
