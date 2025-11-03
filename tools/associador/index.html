@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Associador de Imagens a Palavras - Teacher Carol's Toolkit">
+    <meta name="author" content="Caroline Castro">
+    
+    <title>Associador de Imagens a Palavras | Teacher Carol's Toolkit</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Dependências CSS -->
+    <link href="../../libs/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="styles.css">
+    
+    <link rel="icon" type="image/png" href="../../images/logo.png">
+</head>
+<body>
+    
+    <header class="header">
+        <div class="header-content">
+            <a href="../../index.html" class="logo-container">
+                <img src="../../images/logo.png" alt="Teacher Carol's Toolkit Logo" class="logo-img">
+                <div class="site-title">
+                    <h1>Teacher Carol's Toolkit</h1>
+                    <span class="site-subtitle">Associador de Imagens a Palavras</span>
+                </div>
+            </a>
+            <div class="keyboard-shortcut-hint">
+                Atalho: <kbd>Shift</kbd> + <kbd>Enter</kbd>
+            </div>
+        </div>
+    </header>
+
+    <main style="flex: 1; padding: var(--spacing-md) 0;">
+        <div class="container">
+            <div class="config-panel" id="configPanel">
+                <div class="config-header">
+                    <h1 class="page-title">Associador de Imagens a Palavras</h1>
+                    <button class="toggle-config-btn" id="toggleConfigBtn" style="display: none;">
+                        <span></span>
+                        <span>Recolher</span>
+                    </button>
+                </div>
+
+                <div class="config-content">
+                    <div class="form-group">
+                        <h2 class="section-title">Pares de Imagens e Palavras</h2>
+                        <div class="input-header">
+                            <span class="input-help-text">
+                                Adicione imagens ou GIFs (faça upload ou cole uma URL) e seus textos correspondentes.
+                            </span>
+                            <button type="button" class="btn-example" id="btnExample">
+                                <span>✨</span>
+                                <span>Gerar Exemplo</span>
+                            </button>
+                        </div>
+                        <div class="pairs-grid" id="pairsContainer">
+                            <!-- Pares serão adicionados dinamicamente aqui -->
+                            <button type="button" class="btn-add-pair" id="btnAddPair">
+                                <div class="add-icon">+</div>
+                                <div class="add-text">Adicionar</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="alert" id="alert">
+                        <p class="alert-text" id="alertText"></p>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-generate" id="btnGenerate">Gerar Jogo</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-print" id="btnPrint"> Imprimir</button>
+
+            <div class="game-container" id="gameContainer">
+                <div class="game-header">
+                    <h2 class="game-title">Conecte as Imagens às Palavras</h2>
+                    <div class="game-controls">
+                        <button class="btn-clear" id="btnClear">Limpar Conexões</button>
+                        <button class="btn-check" id="btnCheck">Verificar Respostas</button>
+                    </div>
+                </div>
+                
+                <div class="game-board" id="gameBoard">
+                    <!-- SVG para desenhar as linhas -->
+                    <svg class="connections-svg" id="connectionsSvg">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                                <polygon points="0 0, 10 5, 0 10" fill="var(--primary-500)" />
+                            </marker>
+                        </defs>
+                    </svg>
+                    
+                    <!-- Coluna de Imagens -->
+                    <div class="items-column images-column" id="imagesColumn">
+                        <h3 class="column-title">Imagens</h3>
+                        <div class="items-list" id="imagesList">
+                            <!-- Imagens serão adicionadas aqui -->
+                        </div>
+                    </div>
+                    
+                    <!-- Coluna de Textos -->
+                    <div class="items-column words-column" id="wordsColumn">
+                        <h3 class="column-title">Textos</h3>
+                        <div class="items-list" id="wordsList">
+                            <!-- Textos serão adicionados aqui -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feedback-message" id="feedbackMessage"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Teacher Carol's Toolkit. Criado com 💜 por Caroline Castro.</p>
+    </footer>
+
+    <!-- Dependências JavaScript -->
+    <script src="../../libs/jquery.min.js"></script>
+    <script src="../../libs/select2.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
