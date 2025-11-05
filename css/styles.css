@@ -259,7 +259,7 @@ p {
    ============================================ */
 
 .hero {
-  padding: var(--spacing-3xl) 0;
+  padding: var(--spacing-2xl) 0;
   text-align: center;
 }
 
@@ -280,7 +280,7 @@ p {
    ============================================ */
 
 .tools-section {
-  padding: 0 0 var(--spacing-3xl);
+  padding: 0 0 var(--spacing-2xl);
   flex: 1;
 }
 
@@ -301,9 +301,8 @@ p {
 
 .tools-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
 }
 
 /* ============================================
@@ -358,20 +357,27 @@ p {
   align-items: center;
   justify-content: center;
   font-size: var(--font-size-2xl);
-  margin-bottom: var(--spacing-xs);
   transition: transform var(--transition-base);
+  flex-shrink: 0;
 }
 
 .tool-card:hover .tool-icon {
   transform: scale(1.1) rotate(5deg);
 }
 
+.tool-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
 .tool-title {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-xs);
   line-height: 1.3;
+  margin: 0;
 }
 
 .tool-description {
