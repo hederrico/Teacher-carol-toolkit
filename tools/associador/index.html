@@ -98,7 +98,6 @@
                     <h2 class="game-title">Conecte as Imagens às Palavras</h2>
                     <div class="game-controls">
                         <button class="btn-clear" id="btnClear">Limpar Conexões</button>
-                        <button class="btn-check" id="btnCheck">Verificar Respostas</button>
                     </div>
                 </div>
                 
@@ -129,7 +128,7 @@
                     </div>
                 </div>
                 
-                <div class="feedback-message" id="feedbackMessage"></div>
+                <div class="feedback-message-inline" id="feedbackMessageInline"></div>
             </div>
         </div>
     </main>
@@ -137,10 +136,27 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <p>Feito com <span class="footer-heart">❤️</span> para Teacher Carol © 2025</p>
+                <p>Feito com <span class="footer-heart">
+                    <svg class="footer-heart-icon" width="14" height="14" viewBox="0 0 24 24" fill="#ff6b9d" stroke="none">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                </span> para Teacher Carol © 2025</p>
             </div>
         </div>
     </footer>
+
+    <!-- Modal de Feedback -->
+    <div class="feedback-modal" id="feedbackModal">
+        <div class="feedback-message" id="feedbackMessage">
+            <button class="btn-close-modal" id="btnCloseModal" aria-label="Fechar">×</button>
+            <h3 id="feedbackTitle"></h3>
+            <p id="feedbackText"></p>
+            <button class="btn-new-game" id="btnNewGame" style="display: none;">
+                <span>🎲</span>
+                <span>Gerar Novo Jogo</span>
+            </button>
+        </div>
+    </div>
 
     <!-- Dependências JavaScript -->
     <script src="../../libs/jquery.min.js"></script>

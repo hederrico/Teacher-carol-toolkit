@@ -2,6 +2,20 @@ let gamePairs = [];
 let connections = [];
 let selectedItem = null;
 let isConfigCollapsed = false;
+let previewLine = null;
+
+const connectionColors = [
+    '#ef4444', // red
+    '#f59e0b', // amber
+    '#10b981', // emerald
+    '#3b82f6', // blue
+    '#8b5cf6', // violet
+    '#ec4899', // pink
+    '#06b6d4', // cyan
+    '#f97316', // orange
+    '#84cc16', // lime
+    '#6366f1'  // indigo
+];
 
 const examplePairs = [
     {
@@ -41,14 +55,39 @@ function setupEventListeners() {
     
     document.getElementById('btnClear').addEventListener('click', clearConnections);
     
-    document.getElementById('btnCheck').addEventListener('click', checkAnswers);
-    
     document.getElementById('toggleConfigBtn').addEventListener('click', toggleConfig);
+    
+    document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+    
+    document.getElementById('feedbackModal').addEventListener('click', (e) => {
+        if (e.target.id === 'feedbackModal') {
+            closeModal();
+        }
+    });
+    
+    document.getElementById('btnNewGame').addEventListener('click', () => {
+        closeModal();
+        clearConnections();
+        
+        // Expandir o painel de configurações se estiver colapsado
+        const configPanel = document.getElementById('configPanel');
+        if (configPanel.classList.contains('collapsed')) {
+            toggleConfig();
+        }
+        
+        // Scroll para o painel de configurações
+        setTimeout(() => {
+            configPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    });
     
     document.addEventListener('keydown', (e) => {
         if (e.shiftKey && e.key === 'Enter') {
             e.preventDefault();
             generateGame();
+        }
+        if (e.key === 'Escape') {
+            closeModal();
         }
     });
 }
@@ -332,6 +371,21 @@ function renderGame(shuffledImages, shuffledWords) {
     selectedItem = null;
     document.getElementById('connectionsSvg').innerHTML = '<defs><marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><polygon points="0 0, 10 5, 0 10" fill="var(--primary-500)" /></marker></defs>';
     
+    // Remove estilos inline de cores
+    document.querySelectorAll('.image-item, .word-item').forEach(item => {
+        item.style.borderColor = '';
+        
+        const wordText = item.querySelector('.word-text');
+        if (wordText) {
+            wordText.style.color = '';
+        }
+        
+        const connectionPoint = item.querySelector('.connection-point');
+        if (connectionPoint) {
+            connectionPoint.style.background = '';
+        }
+    });
+    
     shuffledImages.forEach((pair, index) => {
         const imageDiv = document.createElement('div');
         imageDiv.className = 'image-item';
@@ -345,6 +399,8 @@ function renderGame(shuffledImages, shuffledWords) {
         `;
         
         imageDiv.addEventListener('click', () => handleItemClick(imageDiv));
+        imageDiv.addEventListener('mouseenter', (e) => handleItemHover(imageDiv, e));
+        imageDiv.addEventListener('mouseleave', () => removePreviewLine());
         imagesContainer.appendChild(imageDiv);
     });
     
@@ -361,12 +417,76 @@ function renderGame(shuffledImages, shuffledWords) {
         `;
         
         wordDiv.addEventListener('click', () => handleItemClick(wordDiv));
+        wordDiv.addEventListener('mouseenter', (e) => handleItemHover(wordDiv, e));
+        wordDiv.addEventListener('mouseleave', () => removePreviewLine());
         wordsContainer.appendChild(wordDiv);
     });
     
-    const feedbackMessage = document.getElementById('feedbackMessage');
-    feedbackMessage.style.display = 'none';
-    feedbackMessage.className = 'feedback-message';
+    // Não precisa mais resetar a mensagem inline aqui, pois agora usa modal
+}
+
+function handleItemHover(item, event) {
+    // Só mostra preview se houver um item selecionado
+    if (!selectedItem) return;
+    
+    const itemType = item.dataset.type;
+    
+    // Não mostra preview se for do mesmo tipo
+    if (selectedItem.type === itemType) return;
+    
+    // Não mostra preview se o item já está conectado
+    const itemAlreadyConnected = connections.some(conn => 
+        conn.image === item || conn.word === item
+    );
+    if (itemAlreadyConnected) return;
+    
+    // Remove preview anterior se existir
+    removePreviewLine();
+    
+    // Cria preview da linha
+    let imageElement, wordElement;
+    if (itemType === 'image') {
+        imageElement = item;
+        wordElement = selectedItem.element;
+    } else {
+        imageElement = selectedItem.element;
+        wordElement = item;
+    }
+    
+    drawPreviewLine(imageElement, wordElement);
+}
+
+function drawPreviewLine(imageElement, wordElement) {
+    const svg = document.getElementById('connectionsSvg');
+    const imageRect = imageElement.getBoundingClientRect();
+    const wordRect = wordElement.getBoundingClientRect();
+    const svgRect = svg.getBoundingClientRect();
+    
+    const x1 = imageRect.right - svgRect.left;
+    const y1 = imageRect.top + imageRect.height / 2 - svgRect.top;
+    const x2 = wordRect.left - svgRect.left;
+    const y2 = wordRect.top + wordRect.height / 2 - svgRect.top;
+    
+    const midX = (x1 + x2) / 2;
+    previewLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    
+    const d = `M ${x1} ${y1} Q ${midX} ${y1}, ${midX} ${(y1 + y2) / 2} T ${x2} ${y2}`;
+    
+    previewLine.setAttribute('d', d);
+    previewLine.setAttribute('class', 'connection-line preview-line');
+    
+    // Usa a cor que seria usada para a próxima conexão
+    const nextColorIndex = connections.length % connectionColors.length;
+    previewLine.setAttribute('stroke', connectionColors[nextColorIndex]);
+    
+    svg.appendChild(previewLine);
+}
+
+function removePreviewLine() {
+    if (previewLine) {
+        previewLine.remove();
+        previewLine = null;
+    }
 }
 
 function handleItemClick(item) {
@@ -376,19 +496,49 @@ function handleItemClick(item) {
     if (!selectedItem) {
         selectedItem = { element: item, type: itemType, id: itemId };
         item.classList.add('selected');
+        
+        // Define a cor da bolinha com base na próxima cor disponível
+        const nextColorIndex = connections.length % connectionColors.length;
+        const connectionPoint = item.querySelector('.connection-point');
+        if (connectionPoint) {
+            connectionPoint.style.background = connectionColors[nextColorIndex];
+        }
+        
         return;
     }
     
     if (selectedItem.element === item) {
         item.classList.remove('selected');
+        
+        // Remove a cor customizada da bolinha
+        const connectionPoint = item.querySelector('.connection-point');
+        if (connectionPoint) {
+            connectionPoint.style.background = '';
+        }
+        
         selectedItem = null;
         return;
     }
     
     if (selectedItem.type === itemType) {
         selectedItem.element.classList.remove('selected');
+        
+        // Remove cor da bolinha do item anterior
+        const prevConnectionPoint = selectedItem.element.querySelector('.connection-point');
+        if (prevConnectionPoint) {
+            prevConnectionPoint.style.background = '';
+        }
+        
         selectedItem = { element: item, type: itemType, id: itemId };
         item.classList.add('selected');
+        
+        // Aplica cor na nova bolinha
+        const nextColorIndex = connections.length % connectionColors.length;
+        const connectionPoint = item.querySelector('.connection-point');
+        if (connectionPoint) {
+            connectionPoint.style.background = connectionColors[nextColorIndex];
+        }
+        
         return;
     }
     
@@ -403,6 +553,13 @@ function handleItemClick(item) {
     if (existingConnection) {
         showAlert('Esses itens já estão conectados!', 'error');
         firstItem.element.classList.remove('selected');
+        
+        // Remove cor da bolinha
+        const connectionPoint = firstItem.element.querySelector('.connection-point');
+        if (connectionPoint) {
+            connectionPoint.style.background = '';
+        }
+        
         selectedItem = null;
         return;
     }
@@ -417,11 +574,20 @@ function handleItemClick(item) {
     if (firstAlreadyConnected || secondAlreadyConnected) {
         showAlert('Um ou ambos os itens já estão conectados!', 'error');
         firstItem.element.classList.remove('selected');
+        
+        // Remove cor da bolinha
+        const connectionPoint = firstItem.element.querySelector('.connection-point');
+        if (connectionPoint) {
+            connectionPoint.style.background = '';
+        }
+        
         selectedItem = null;
         return;
     }
     
     createConnection(firstItem, secondItem);
+    
+    removePreviewLine();
     
     firstItem.element.classList.remove('selected');
     item.classList.remove('selected');
@@ -438,20 +604,36 @@ function createConnection(item1, item2) {
         wordItem = item1;
     }
     
+    const connectionIndex = connections.length;
+    const color = connectionColors[connectionIndex % connectionColors.length];
+    
     connections.push({
         image: imageItem.element,
         word: wordItem.element,
         imageId: imageItem.id,
-        wordId: wordItem.id
+        wordId: wordItem.id,
+        color: color
     });
     
     imageItem.element.classList.add('connected');
     wordItem.element.classList.add('connected');
     
-    drawConnection(imageItem.element, wordItem.element);
+    // Aplica a cor da conexão nas bordas e no texto
+    imageItem.element.style.borderColor = color;
+    wordItem.element.style.borderColor = color;
+    
+    const wordText = wordItem.element.querySelector('.word-text');
+    if (wordText) {
+        wordText.style.color = color;
+    }
+    
+    drawConnection(imageItem.element, wordItem.element, color);
+    
+    // Verificar se todas as conexões foram feitas
+    checkIfGameComplete();
 }
 
-function drawConnection(imageElement, wordElement) {
+function drawConnection(imageElement, wordElement, color) {
     const svg = document.getElementById('connectionsSvg');
     const imageRect = imageElement.getBoundingClientRect();
     const wordRect = wordElement.getBoundingClientRect();
@@ -469,6 +651,7 @@ function drawConnection(imageElement, wordElement) {
     
     path.setAttribute('d', d);
     path.setAttribute('class', 'connection-line');
+    path.setAttribute('stroke', color);
     path.setAttribute('data-image', imageElement.dataset.index);
     path.setAttribute('data-word', wordElement.dataset.index);
     
@@ -480,93 +663,110 @@ function clearConnections() {
     
     document.querySelectorAll('.image-item, .word-item').forEach(item => {
         item.classList.remove('connected', 'selected', 'correct', 'incorrect');
+        // Remove estilos inline de cores
+        item.style.borderColor = '';
+        
+        const wordText = item.querySelector('.word-text');
+        if (wordText) {
+            wordText.style.color = '';
+        }
+        
+        const connectionPoint = item.querySelector('.connection-point');
+        if (connectionPoint) {
+            connectionPoint.style.background = '';
+        }
     });
     
     const svg = document.getElementById('connectionsSvg');
     svg.innerHTML = '<defs><marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><polygon points="0 0, 10 5, 0 10" fill="var(--primary-500)" /></marker></defs>';
     
+    removePreviewLine();
     selectedItem = null;
     
-    const feedbackMessage = document.getElementById('feedbackMessage');
-    feedbackMessage.style.display = 'none';
-    feedbackMessage.className = 'feedback-message';
+    const feedbackMessageInline = document.getElementById('feedbackMessageInline');
+    feedbackMessageInline.style.display = 'none';
+    feedbackMessageInline.className = 'feedback-message-inline';
 }
 
-function checkAnswers() {
-    if (connections.length === 0) {
-        showAlert('Faça pelo menos uma conexão antes de verificar!', 'error');
-        return;
-    }
-    
-    let correctCount = 0;
+function checkIfGameComplete() {
     const totalPairs = gamePairs.length;
     
-    connections.forEach(conn => {
-        const isCorrect = conn.imageId === conn.wordId;
-        
-        if (isCorrect) {
-            correctCount++;
-            conn.image.classList.add('correct');
-            conn.word.classList.add('correct');
-            
-            const line = document.querySelector(`path[data-image="${conn.image.dataset.index}"][data-word="${conn.word.dataset.index}"]`);
-            if (line) {
-                line.classList.add('correct');
-            }
-        } else {
-            conn.image.classList.add('incorrect');
-            conn.word.classList.add('incorrect');
-            
-            const line = document.querySelector(`path[data-image="${conn.image.dataset.index}"][data-word="${conn.word.dataset.index}"]`);
-            if (line) {
-                line.classList.add('incorrect');
-            }
-        }
-    });
-    
-    const feedbackMessage = document.getElementById('feedbackMessage');
-    feedbackMessage.style.display = 'block';
-    
-    if (correctCount === totalPairs && connections.length === totalPairs) {
-        feedbackMessage.className = 'feedback-message success';
-        feedbackMessage.innerHTML = `
-            🎉 <strong>Parabéns!</strong> Você acertou todas as ${totalPairs} conexões!
-        `;
-        createConfetti();
-    } else if (correctCount > 0) {
-        feedbackMessage.className = 'feedback-message partial';
-        feedbackMessage.innerHTML = `
-            👍 Você acertou <strong>${correctCount}</strong> de <strong>${connections.length}</strong> conexões!
-            ${connections.length < totalPairs ? `<br>Ainda faltam ${totalPairs - connections.length} pares para conectar.` : ''}
-        `;
-    } else {
-        feedbackMessage.className = 'feedback-message error';
-        feedbackMessage.innerHTML = `
-            😕 Nenhuma conexão está correta. Tente novamente!
-        `;
-    }
+    // Só verifica quando todas as conexões foram feitas
+    if (connections.length !== totalPairs) return;
     
     setTimeout(() => {
-        feedbackMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+        let correctCount = 0;
+        
+        connections.forEach(conn => {
+            const isCorrect = conn.imageId === conn.wordId;
+            
+            if (isCorrect) {
+                correctCount++;
+            }
+        });
+        
+        if (correctCount === totalPairs) {
+            showFeedback('success', '🎉 Parabéns! 🎉', 'Você conectou todas as imagens corretamente!');
+            launchConfetti();
+        } else {
+            showFeedback('error', '😕 Quase lá!', `Você acertou ${correctCount} de ${totalPairs} conexões. Limpe as conexões e tente novamente!`);
+        }
+    }, 300);
 }
 
-function createConfetti() {
-    const colors = ['#16a34a', '#22c55e', '#4ade80', '#86efac', '#bbf7d0'];
-    const confettiCount = 50;
+function showFeedback(type, title, text) {
+    const modal = document.getElementById('feedbackModal');
+    const feedback = document.getElementById('feedbackMessage');
     
-    for (let i = 0; i < confettiCount; i++) {
+    feedback.classList.remove('success', 'error');
+    feedback.classList.add(type);
+    
+    document.getElementById('feedbackTitle').textContent = title;
+    document.getElementById('feedbackText').textContent = text;
+    
+    // Mostrar/ocultar botão de novo jogo
+    const btnNewGame = document.getElementById('btnNewGame');
+    if (type === 'success') {
+        btnNewGame.style.display = 'inline-flex';
+    } else {
+        btnNewGame.style.display = 'none';
+    }
+    
+    // Mostrar modal
+    modal.classList.add('show');
+}
+
+function closeModal() {
+    const modal = document.getElementById('feedbackModal');
+    modal.classList.remove('show');
+    
+    // Remove confetti quando fechar o modal
+    document.querySelectorAll('.confetti').forEach(c => c.remove());
+}
+
+function launchConfetti() {
+    const colors = ['var(--primary-400)', 'var(--primary-500)', 'var(--primary-600)', '#fbbf24', '#f59e0b', '#22c55e', '#3b82f6'];
+    
+    for (let i = 0; i < 150; i++) {
         setTimeout(() => {
+            const size = Math.random() * 15 + 8;
+            const startPosition = Math.random() * 100;
+            const startTop = -(Math.random() * 100 + 50);
+            
             const confetti = document.createElement('div');
             confetti.className = 'confetti';
-            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.left = startPosition + '%';
+            confetti.style.top = startTop + 'px';
+            confetti.style.width = size + 'px';
+            confetti.style.height = size + 'px';
             confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
             confetti.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            
             document.body.appendChild(confetti);
             
-            setTimeout(() => confetti.remove(), 5000);
-        }, i * 30);
+            setTimeout(() => confetti.remove(), 6000);
+        }, i * 20);
     }
 }
 
@@ -636,7 +836,7 @@ window.addEventListener('resize', () => {
         svg.innerHTML = '<defs><marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><polygon points="0 0, 10 5, 0 10" fill="var(--primary-500)" /></marker></defs>';
         
         connections.forEach(conn => {
-            drawConnection(conn.image, conn.word);
+            drawConnection(conn.image, conn.word, conn.color);
             
             const line = svg.lastChild;
             if (conn.image.classList.contains('correct')) {

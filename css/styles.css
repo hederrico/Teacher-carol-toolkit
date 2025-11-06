@@ -548,3 +548,12 @@ p {
     transform: translateY(0);
   }
 }
+
+/* ============================================
+   FOOTER HEART ICON
+   ============================================ */
+
+.footer-heart-icon {
+  vertical-align: middle;
+  display: inline-block;
+}
