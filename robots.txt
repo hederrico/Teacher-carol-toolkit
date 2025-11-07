@@ -1,0 +1,27 @@
+# robots.txt para Teacher Carol's Toolkit
+# Permitir acesso a todos os crawlers
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://hederrico.github.io/Teacher-carol-toolkit/sitemap.xml
+
+# Disallow arquivos desnecessários
+Disallow: /libs/
+Disallow: /.git/
+Disallow: /.vscode/
+Disallow: /.playwright-mcp/
+
+# Crawl-delay (opcional, evita sobrecarga)
+Crawl-delay: 1
+
+# Bots específicos
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
